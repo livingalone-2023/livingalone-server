@@ -1,16 +1,21 @@
 // db랑 시퀄라이즈랑 연결하는 역할 
 const Sequelize = require('sequelize');
-require('dotenv').config();
+require('dotenv').config(); // .env 파일의 설정 정보를 가져옴
 
-const sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USERNAME, process.env.MYSQL_PASSWORD, {
-    host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT,
-    dialect: 'mysql',
-})
+const sequelize = new Sequelize(
+    process.env.MYSQL_DATABASE,
+    process.env.MYSQL_USERNAME,
+    process.env.MYSQL_PASSWORD,
+    {
+        host: process.env.MYSQL_HOST,
+        port: process.env.MYSQL_PORT,
+        dialect: 'mysql',
+    }
+)
 
 // 연결 테스트
 sequelize
-    .authenticate()
+    .authenticate() // DB와의 연결을 시도
     .then(() => {
         console.log('Connected to the config');
     })
