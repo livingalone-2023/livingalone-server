@@ -33,6 +33,10 @@ const User = (sequelize) => sequelize.define('users', {
     validate: { // 이메일 형식 유효성 검사
       isEmail: true,
     },
+  },
+  salt: {
+    type: DataTypes.STRING,
+    allowNull: false,
   }
 });
 
