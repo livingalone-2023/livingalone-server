@@ -32,6 +32,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(require('cookie-parser')());
 app.use(bodyParse.json())
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+}));
 
 // router - 진입할 엔드포인트 + 진입할 라우터
 app.use('/users', userRouter)
