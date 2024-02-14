@@ -6,6 +6,7 @@ const Answer = (sequelize) => sequelize.define('answers', {
   // 'answers' : 테이블 이름
   id: {
     type: DataTypes.BIGINT,
+    primaryKey: true,
     allowNull: false,
     references: { // fk
       model: 'questions',
