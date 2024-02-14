@@ -12,6 +12,8 @@ const port = 3000;
 
 // routes
 const userRouter = require('./routes/user')
+const answerRouter = require('./routes/answer')
+const questionRouter = require('./routes/question')
 
 // app.get('/', (req, res) => {
 //   return res.send("홀로서기");
@@ -32,9 +34,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(require('cookie-parser')());
 app.use(bodyParse.json())
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+}));
 
 // router - 진입할 엔드포인트 + 진입할 라우터
 app.use('/users', userRouter)
+app.use('/answers', answerRouter)
+app.use('/questions', questionRouter)
 
 app.listen(port, () => {
   console.log(port, '번 포트에서 대기 중');
