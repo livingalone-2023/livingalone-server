@@ -23,6 +23,7 @@ router.post('/', async (req, res) => {
   }
 })
 
+// 질문 정보 불러오는 api
 router.get('/:question_id', async (req, res) => {
   try {
     const question_id = req.params.question_id
