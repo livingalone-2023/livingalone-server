@@ -43,5 +43,22 @@ router.get('/:question_id', async (req, res) => {
   }
 })
 
+// 질문 list 정보 불러오는 api
+router.get('/', async (req, res) => {
+  try {
+    const questions = await Question.findAll();
+
+    if(questions) {
+      return res.status(200).json( { "message" : "질문 list 불러오기 성공", questions } )
+    } else {
+      return res.status(400).json( { "message" : "질문 list 불러오기 실패"} )
+    }
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json( { "message" : "질문 list 불러오기 실패"} )
+  }
+})
+
 
 module.exports = router
