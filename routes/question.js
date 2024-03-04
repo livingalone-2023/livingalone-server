@@ -86,7 +86,22 @@ router.patch('/:question_id', async (req, res) => {
       return res.status(404).json({ "message" : "질문 수정 실패" })
     }
   } catch (error) {
-    return res.status(404).json({ "message" : "질문 수정 실패" })
+    return res.status(500).json({ "message" : "질문 수정 실패" })
+  }
+})
+
+// 질문 삭제 api
+router.delete('/:question_id', async (req, res) => {
+  const id = req.params.question_id
+  try {
+    Question.destroy({
+      where : { id : id }
+    })
+
+    return res.status(201).json({ "message" : "질문 삭제 성공" })
+
+  } catch (error) {
+    return res.status(500).json({ "message" : "질문 삭제 실패" })
   }
 })
 
