@@ -60,5 +60,35 @@ router.get('/', async (req, res) => {
   }
 })
 
+// 질문 수정 api
+router.patch('/:question_id', async (req, res) => {
+  const { title, content, tag } = req.body
+  const id = req.params.question_id
+
+  try {
+    const question = await Question.update({
+      title : title,
+      content : content,
+      tag : tag
+    }, {
+      where : { id : id }
+    })
+
+    const editedQuestion = await Question.findOne({
+      where : { id : id }
+    })
+
+    console.log("***", editedQuestion.dataValues)
+
+    if(question) {
+      return res.status(201).json({ "message" : "질문 수정 성공" })
+    } else {
+      return res.status(404).json({ "message" : "질문 수정 실패" })
+    }
+  } catch (error) {
+    return res.status(404).json({ "message" : "질문 수정 실패" })
+  }
+})
+
 
 module.exports = router
