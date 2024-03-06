@@ -95,4 +95,23 @@ router.get('/:answer_id',async(req,res)=>{
         return res.status(500).json({'message':'답변을 모두 불러오는데 실패했습니다.'})
     }
 })
+
+//답변채택 api
+router.patch('/:answer_id/accept', async (req, res) => {
+    const id = req.params.answer_id;
+    try {
+        const updatedAnswer = await Answer.update(
+            { isAccepted: true },
+            { where: { id: id } }
+        );
+        if (updatedAnswer[0] !== 0) {
+            return res.status(200).json({ "message": "답변이 채택되었습니다." });
+        } else {
+            return res.status(404).json({ "message": "해당 답변을 찾을 수 없습니다." });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "서버 오류로 인해 답변 채택에 실패했습니다." });
+    }
+});
 module.exports = router
