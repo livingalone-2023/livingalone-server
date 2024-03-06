@@ -44,7 +44,7 @@ try{
     }
 }catch(error){
     console.log(error);
-    return res.status(500).json({"message":"답변 수정이 정상적으로 실패하였습니다."})
+    return res.status(500).json({"message":"서버 오류가 발생하였습니다."})
     //console.log(error);
 }
 })
@@ -59,7 +59,7 @@ router.delete('/:answer_id', async (req, res) => {
         return res.status(201).json({ "message": "답변이 성공적으로 삭제되었습니다." });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ "message": "답변 삭제에 실패했습니다." });
+        return res.status(500).json({ "message": "서버 오류가 발생하였습니다." });
     }
 });
 
@@ -74,7 +74,7 @@ router.get('/',async(req,res)=>{
         }
     }catch(error){
         console.log(error);
-        return res.status(500).json({"message:":"답변들을 정상적으로 불러오는데에 실패했습니다."})
+        return res.status(500).json({"message:":"서버 오류가 발생하였습니다.."})
     }
 })
 
@@ -92,7 +92,7 @@ router.get('/:answer_id',async(req,res)=>{
     }
     }catch(error){
         console.log(error);
-        return res.status(500).json({'message':'답변을 모두 불러오는데 실패했습니다.'})
+        return res.status(500).json({'message':'서버 오류가 발생하였습니다.'})
     }
 })
 
@@ -104,7 +104,9 @@ router.patch('/:answer_id/accept', async (req, res) => {
             { isAccepted: true },
             { where: { id: id } }
         );
-        if (updatedAnswer[0] !== 0) {
+        if (id) {
+            //채택이 존재하는 경우
+            await Answer.update({isAccepted:1},{where:{id:answerId}})
             return res.status(200).json({ "message": "답변이 채택되었습니다." });
         } else {
             return res.status(404).json({ "message": "해당 답변을 찾을 수 없습니다." });
@@ -114,4 +116,27 @@ router.patch('/:answer_id/accept', async (req, res) => {
         return res.status(500).json({ "message": "서버 오류로 인해 답변 채택에 실패했습니다." });
     }
 });
+
+// 답변 좋아요 API
+router.patch('/:answer_id/like', async (req, res) => {
+    const answerId = req.params.answer_id;
+    try {
+        const updatedAnswer = await Answer.findByPk(answerId);
+        if (updatedAnswer) {
+            // 답변이 존재하는 경우
+            await Answer.update({ isLiked: 1 }, { where: { id: answerId } });
+            return res.status(200).json({ "message": "좋아요를 성공적으로 눌렀습니다" });
+        } else {
+            // 답변이 존재하지 않는 경우
+            return res.status(404).json({ "message": "해당 답변을 찾을 수 없습니다." });
+        }
+    } catch (error) {
+        // 서버 오류 발생 시
+        console.log(error);
+        return res.status(500).json({ "message": "서버 오류가 발생하였습니다." });
+    }
+});
+
+    
+
 module.exports = router
