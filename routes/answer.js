@@ -48,6 +48,7 @@ try{
     //console.log(error);
 }
 })
+
 // 답변 삭제 API
 router.delete('/:answer_id', async (req, res) => {
     const id = req.params.answer_id;
@@ -62,4 +63,18 @@ router.delete('/:answer_id', async (req, res) => {
     }
 });
 
+//답변 조회 api
+router.get('/',async(req,res)=>{
+    try{
+        const answers=await Answer.findAll();
+        if(answers){
+            return res.status(200).json({"message":"답변들을 정상적으로 모두 가져왔습니다"})
+        }else{
+            return res.status(400).json({"message":"답변들을 정상적으로 불러오는데에 실패했습니다."})
+        }
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({"message:":"답변들을 정상적으로 불러오는데에 실패했습니다."})
+    }
+})
 module.exports = router
