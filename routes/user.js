@@ -86,4 +86,24 @@ router.post('/login', async (req, res) => {
   }
 })
 
+//내 계정 아이디 찾기 api
+router.post('/find-id',async(req,res)=>{
+  try{
+    const {name,email}=req.body;
+    const user=await User.findOne({
+      where: {
+        name: name,
+        email: email
+    }
+    });
+    if(User){
+    return res.status(200).json({ message: `회원님의 아이디는 ${user.user_id}입니다.`  });
+    }else{
+      return res.status(404).json("일치하는 정보가 없습니다.")
+    }
+    }catch(error){
+      return res.status(500).json("서버 오류가 발생하였습니다.")
+    }
+  
+})
 module.exports = router
