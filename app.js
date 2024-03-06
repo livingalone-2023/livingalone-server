@@ -43,7 +43,7 @@ app.use(session({
 // router - 진입할 엔드포인트 + 진입할 라우터
 app.use('/users', userRouter)
 app.use('/questions', questionRouter)
-app.use('/c', answerRouter)
+app.use('/answers', answerRouter)
 
 app.listen(port, () => {
   console.log(port, '번 포트에서 대기 중');

@@ -48,4 +48,18 @@ try{
     //console.log(error);
 }
 })
+// 답변 삭제 API
+router.delete('/:answer_id', async (req, res) => {
+    const id = req.params.answer_id;
+    try {
+        Answer.destroy({
+            where: { id: id }
+        });
+        return res.status(201).json({ "message": "답변이 성공적으로 삭제되었습니다." });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "답변 삭제에 실패했습니다." });
+    }
+});
+
 module.exports = router
