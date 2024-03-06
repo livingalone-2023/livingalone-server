@@ -17,17 +17,6 @@ router.post('/signup', async (req, res) => {
     // 사용자 비밀번호와 salt를 합쳐 해싱
     const hashedPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('base64');
 
-    // 중복 체크
-    const userCheck = await User.findOne({
-      where: {
-        [Op.or]: [{ user_id }, { email }],
-      },
-    });
-
-    if (userCheck) {
-      return res.status(400).json({ error: '이미 가입된 사용자입니다.' });
-    }
-
     // 회원가입
     const user = await User.create({
       user_id,
@@ -41,7 +30,7 @@ router.post('/signup', async (req, res) => {
 
   } catch (err) {
     console.error("Error"+err);
-    return res.status(500).json({ error: '서버 오류' });
+    return res.status(500).json({ error: '사용자 정보가 성공적으로 저장되지 않았습니다.' });
   }
 });
 
