@@ -77,4 +77,22 @@ router.get('/',async(req,res)=>{
         return res.status(500).json({"message:":"답변들을 정상적으로 불러오는데에 실패했습니다."})
     }
 })
+
+//답변 불러오는 api
+router.get('/:answer_id',async(req,res)=>{
+    try{
+    const answer_id=req.params.answer_id;
+    const answer=await Answer.findOne({
+    where:{id:answer_id}
+    });
+    if(answer){
+        return res.status(200).json({'message':"답변을 모두 불러왔습니다."})
+    }else{
+        return res.status(400).json({'message':"답변을 모두 불러오는데 실패했습니다."})
+    }
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({'message':'답변을 모두 불러오는데 실패했습니다.'})
+    }
+})
 module.exports = router
