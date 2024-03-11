@@ -105,5 +105,24 @@ router.delete('/:question_id', async (req, res) => {
   }
 })
 
+//내가 쓴 질문 조회 api
+router.get('/:userId', async (req, res) => {
+  const userId = req.params.userId; // 사용자의 로그인 ID를 가져옴
+
+  try {
+    // 사용자가 작성한 모든 질문을 조회
+    const userQuestions = await Question.findAll({
+      where: {
+        userId: userId
+      }
+    });
+
+    res.json(userQuestions);
+  } catch (error) {
+    console.error('Error fetching user questions:', error);
+    res.status(500).json({ error: 'Error fetching user questions' }); // 오류 발생 시 500 에러 응답
+  }
+});
+
 
 module.exports = router
