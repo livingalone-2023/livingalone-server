@@ -118,7 +118,7 @@ router.get('/:user_id', async (req, res) => {
   }
 })
 
-// 계정 정보 수정
+// 유저 정보 수정
 router.patch('/:user_id', async (req, res) => {
   const id = req.params.user_id
   const { image, name } = req.body;
@@ -130,11 +130,10 @@ router.patch('/:user_id', async (req, res) => {
       where : { id }
     })
 
-    const editUser = User.findOne({
-      where : { id }
-    })
-
-    console.log(editUser)
+    // const editUser = await User.findOne({
+    //   where : { id }
+    // })
+    // console.log(editUser)
 
     return res.status(200).json({ "message" : "유저 정보 수정에 성공했습니다." } )
   } catch (error) {
