@@ -9,7 +9,7 @@ const router = express.Router();
 // 회원가입 API
 router.post('/signup', async (req, res) => {
   try {
-    const { user_id, name, password, email } = req.body;
+    const { user_id, name, password, email, image } = req.body;
 
     // 비밀번호 해싱에 사용할 salt 생성
     const salt = crypto.randomBytes(16).toString('hex');
@@ -23,7 +23,8 @@ router.post('/signup', async (req, res) => {
       name,
       password: hashedPassword,
       email,
-      salt
+      salt,
+      image
     })
 
     return res.status(200).json({ message: '사용자 정보가 성공적으로 저장되었습니다.' });
