@@ -37,6 +37,9 @@ const User = (sequelize) => sequelize.define('users', {
   salt: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  image: {
+    type: DataTypes.STRING,
   }
 });
 
