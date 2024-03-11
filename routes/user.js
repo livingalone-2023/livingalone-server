@@ -117,4 +117,30 @@ router.get('/:user_id', async (req, res) => {
       return res.status(500).json({ message : "유저 정보 가져오기에 실패했습니다." })
   }
 })
+
+// 계정 정보 수정
+router.patch('/:user_id', async (req, res) => {
+  const id = req.params.user_id
+  const { image, name } = req.body;
+  try {
+    const user = await User.update({
+      image,
+      name
+    }, {
+      where : { id }
+    })
+
+    const editUser = User.findOne({
+      where : { id }
+    })
+
+    console.log(editUser)
+
+    return res.status(200).json({ "message" : "유저 정보 수정에 성공했습니다." } )
+  } catch (error) {
+    return res.status(500).json({ "message" : "유저 정보 수정에 실패했습니다." } )
+    
+  }
+})
+
 module.exports = router
