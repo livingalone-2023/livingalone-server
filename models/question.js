@@ -9,11 +9,9 @@ const Question = (sequelize) => sequelize.define('questions', {
     primaryKey: true,
     allowNull: false,
     autoIncrement: true,
-    unique: true,
   },
   title: {
     type: DataTypes.STRING(100),
-    
   },
   content: {
     type: DataTypes.TEXT,
@@ -26,6 +24,14 @@ const Question = (sequelize) => sequelize.define('questions', {
   tag: {
     type: DataTypes.STRING(20),
     allowNull: false,
+  },
+  user_id: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
   }
 });
 
