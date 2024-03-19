@@ -48,6 +48,7 @@ try{
     //console.log(error);
 }
 })
+
 // 사용자가 작성한 모든 답변 리스트를 반환하는 엔드포인트
 router.get('/:userId', async (req, res) => {
     const userId = req.params.userId; // 사용자의 로그인 ID를 가져옴
@@ -88,20 +89,22 @@ router.delete('/:answer_id', async (req, res) => {
     }
   })
 
-//답변 조회 api
-router.get('/',async(req,res)=>{
-    try{
-        const answers=await Answer.findAll();
-        if(answers){
-            return res.status(200).json({"message":"답변들을 정상적으로 모두 가져왔습니다"})
-        }else{
-            return res.status(400).json({"message":"답변들을 정상적으로 불러오는데에 실패했습니다."})
-        }
-    }catch(error){
-        console.log(error);
-        return res.status(500).json({"message:":"서버 오류가 발생하였습니다.."})
+
+
+// 모든 사용자가 작성한 답변 조회 API
+router.get('/', async (req, res) => {
+    try {
+        // 모든 사용자가 작성한 답변을 조회
+        const allAnswers = await Answer.findAll();
+
+        // 조회된 모든 답변을 반환
+        return res.status(200).json({ message: "모든 사용자가 작성한 답변을 성공적으로 불러왔습니다.", data: allAnswers });
+    } catch (error) {
+        console.error('Error fetching all answers:', error);
+        return res.status(500).json({ error: '모든 사용자가 작성한 답변을 불러오는 중에 오류가 발생했습니다.' });
     }
-})
+});
+
 
 // 내가 쓴 질문 조회 API
 router.get('/list/:user_id', async (req, res) => {
@@ -121,26 +124,29 @@ router.get('/list/:user_id', async (req, res) => {
     }
 });
 
-//답변채택 api
+// 답변 채택 API
 router.patch('/:answer_id/accept', async (req, res) => {
-    const id = req.params.answer_id;
+    const answerId = req.params.answer_id; // answer_id 대신 answerId로 변수명 수정
+
     try {
+        // 해당 answerId를 가진 답변을 채택 처리
         const updatedAnswer = await Answer.update(
             { isAccepted: true },
-            { where: { id: id } }
+            { where: { id: answerId } }
         );
-        if (id) {
-            //채택이 존재하는 경우
-            await Answer.update({isAccepted:1},{where:{id:answerId}})
-            return res.status(200).json({ "message": "답변이 채택되었습니다." });
+
+        // 업데이트된 답변이 존재하는 경우
+        if (updatedAnswer > 0) {
+            return res.status(200).json({ message: "답변이 채택되었습니다." });
         } else {
-            return res.status(404).json({ "message": "해당 답변을 찾을 수 없습니다." });
+            return res.status(404).json({ message: "해당 답변을 찾을 수 없습니다." });
         }
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "서버 오류로 인해 답변 채택에 실패했습니다." });
+        console.error('Error accepting answer:', error);
+        return res.status(500).json({ message: "서버 오류로 인해 답변 채택에 실패했습니다." });
     }
 });
+
 
 // 답변 좋아요 API
 router.patch('/:answer_id/like', async (req, res) => {
@@ -163,35 +169,7 @@ router.patch('/:answer_id/like', async (req, res) => {
 });
 
 
-// 사용자가 작성한 모든 답변 리스트를 반환하는 엔드포인트
-router.get('all/:userId', async (req, res) => {
-    const userId = req.params.userId; // 사용자의 로그인 ID를 가져옴
-  
-    try {
-      // 사용자가 작성한 모든 질문을 조회
-      const userQuestions = await Question.findAll({
-        where: {
-          userId: userId // userId가 매개변수로 받은 사용자의 ID와 일치하는 질문을 찾음
-        }
-      });
-  
-      // 사용자가 작성한 모든 질문에 대한 답변 리스트를 조회
-      const userAnswers = await Promise.all(userQuestions.map(async (question) => {
-        return await Answer.findAll({
-          where: {
-            questionId: question.id // 질문의 ID와 일치하는 답변을 찾음
-          }
-        });
-      }));
-  
-      // 사용자가 작성한 모든 답변 리스트를 결합하여 반환
-      const allUserAnswers = userAnswers.flat();
-      res.json(allUserAnswers); // 조회된 답변 리스트를 JSON 형식으로 응답
-    } catch (error) {
-      console.error('Error fetching user answers:', error);
-      res.status(500).json({ error: 'Error fetching user answers' }); // 오류 발생 시 500 에러 응답
-    }
-  });
+
   
 
 module.exports = router
