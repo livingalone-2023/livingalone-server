@@ -103,23 +103,23 @@ router.get('/',async(req,res)=>{
     }
 })
 
-//답변 불러오는 api
-router.get('/:answer_id',async(req,res)=>{
-    try{
-    const answer_id=req.params.answer_id;
-    const answer=await Answer.findOne({
-    where:{id:answer_id}
-    });
-    if(answer){
-        return res.status(200).json({'message':"답변을 모두 불러왔습니다."})
-    }else{
-        return res.status(400).json({'message':"답변을 모두 불러오는데 실패했습니다."})
+// 내가 쓴 질문 조회 API
+router.get('/list/:user_id', async (req, res) => {
+    const user_id = req.params.user_id; // 사용자의 ID를 가져옴
+
+    try {
+        // 사용자가 작성한 모든 질문을 조회
+        const userQuestions = await Answer.findAll({
+            where: { user_id: user_id }
+        });
+
+        // 사용자가 작성한 모든 질문과 그에 대한 정보를 반환
+        return res.status(200).json({ message: "사용자의 질문을 모두 불러왔습니다.", data: userQuestions });
+    } catch (error) {
+        console.error('Error fetching user questions:', error);
+        return res.status(500).json({ error: '사용자의 질문을 불러오는 중에 오류가 발생했습니다.' });
     }
-    }catch(error){
-        console.log(error);
-        return res.status(500).json({'message':'서버 오류가 발생하였습니다.'})
-    }
-})
+});
 
 //답변채택 api
 router.patch('/:answer_id/accept', async (req, res) => {
