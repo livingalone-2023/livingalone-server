@@ -7,7 +7,8 @@ const crypto = require('crypto');
 const router = express.Router();
 
 // 질문 업로드 api
-router.post('/', async (req, res) => {
+router.post('/:user_id', async (req, res) => {
+  const userId = req.params.user_id
   try {
     const question = await Question.create(req.body);
 
@@ -20,6 +21,59 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json( { "message" : "질문 업로드 실패"} )
+  }
+})
+
+// 질문 list 정보 불러오는 api
+router.get('/list', async (req, res) => {
+  try {
+    const questions = await Question.findAll();
+
+    if(questions) {
+      return res.status(200).json( { "message" : "질문 list 불러오기 성공", questions } )
+    } else {
+      return res.status(400).json( { "message" : "질문 list 불러오기 실패"} )
+    }
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json( { "message" : "질문 list 불러오기 실패"} )
+  }
+})
+
+// tag에 따른 질문 list 정보 불러오는 api
+router.get('/list/:tag_type', async (req, res) => {
+  const tag = req.params.tag_type;
+  try {
+    let questions;
+    if(tag == 1) {
+      questions = await Question.findAll({
+        where : { tag : '주거' }
+      });
+    } else if(tag == 2) {
+      questions = await Question.findAll({
+        where : { tag : '비용' }
+      });
+    } else if(tag == 3) {
+      questions = await Question.findAll({
+        where : { tag : '인테리어' }
+      });
+    } else if(tag == 4) {
+      questions = await Question.findAll({
+        where : { tag : '생활꿀팁' }
+      });
+    }
+    
+    if(questions) {
+      return res.status(200).json( { "message" : "주거 질문 list 불러오기 성공", questions } )
+    } else {
+      console.log(questions);
+      return res.status(400).json( { "message" : "주거 질문 list 불러오기 실패"} )
+    }
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json( { "message" : "주거 질문 list 불러오기 실패"} )
   }
 })
 
@@ -40,23 +94,6 @@ router.get('/:question_id', async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json( { "message" : "질문 불러오기 실패"} )
-  }
-})
-
-// 질문 list 정보 불러오는 api
-router.get('/', async (req, res) => {
-  try {
-    const questions = await Question.findAll();
-
-    if(questions) {
-      return res.status(200).json( { "message" : "질문 list 불러오기 성공", questions } )
-    } else {
-      return res.status(400).json( { "message" : "질문 list 불러오기 실패"} )
-    }
-    
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json( { "message" : "질문 list 불러오기 실패"} )
   }
 })
 
