@@ -26,11 +26,11 @@ const Question = (sequelize) => sequelize.define('questions', {
     allowNull: false,
   },
   user_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.BIGINT,
     allowNull: false,
     references: {
       model: 'users',
-      key: 'user_id'
+      key: 'id'
     }
   }
 });
