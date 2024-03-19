@@ -71,37 +71,23 @@ router.get('/:userId', async (req, res) => {
         res.status(500).json({ "message": "서버 오류가 발생하였습니다." }); // 오류 발생 시 500 에러 응답
     }
 });
-// 답변 삭제 API
+
+
+// 답변 삭제 api
 router.delete('/:answer_id', async (req, res) => {
-    const answerId = req.params.answer_id; // 삭제할 답변의 ID
-    const userId = req.session.userId; // 세션에서 사용자의 ID를 가져옴
-
+    const id = req.params.answer_id
     try {
-        // 사용자가 작성한 답변인지 확인
-        const answer = await Answer.findOne({
-            where: {
-                id: answerId,
-                userId: userId // 현재 로그인한 사용자의 ID와 일치하는 답변을 찾음
-            }
-        });
-
-        if (answer) {
-            // 답변을 찾은 경우 삭제
-            await Answer.destroy({
-                where: {
-                    id: answerId
-                }
-            });
-            return res.status(200).json({ "message": "답변이 성공적으로 삭제되었습니다." });
-        } else {
-            // 해당 답변이 없거나 사용자가 작성한 답변이 아닌 경우
-            return res.status(404).json({ "message": "해당 답변을 찾을 수 없거나 권한이 없습니다." });
-        }
+      Answer.destroy({
+        where : { id : id }
+      })
+  
+      return res.status(201).json({ "message" : "답변 삭제 성공" })
+  
     } catch (error) {
-        console.error('Error deleting answer:', error);
-        return res.status(500).json({ "message": "서버 오류가 발생하였습니다." });
+      return res.status(500).json({ "message" : "답변 삭제 실패" })
     }
-});
+  })
+
 //답변 조회 api
 router.get('/',async(req,res)=>{
     try{
