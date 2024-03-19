@@ -23,11 +23,11 @@ const Answer = (sequelize) => sequelize.define('answers', {
     allowNull: false,
   },
   user_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.BIGINT,
     allowNull: false,
     references: {
       model: 'users',
-      key: 'user_id'
+      key: 'id'
     }
   }
 });
