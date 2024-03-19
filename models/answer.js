@@ -8,10 +8,7 @@ const Answer = (sequelize) => sequelize.define('answers', {
     type: DataTypes.BIGINT,
     primaryKey: true,
     allowNull: false,
-    references: { // fk
-      model: 'questions',
-      key: 'id',
-    }
+    autoIncrement: true,
   },
   answer: {
     type: DataTypes.TEXT,
@@ -25,6 +22,14 @@ const Answer = (sequelize) => sequelize.define('answers', {
     type: DataTypes.TINYINT,
     allowNull: false,
   },
+  user_id: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'user_id'
+    }
+  }
 });
 
 module.exports = Answer;
