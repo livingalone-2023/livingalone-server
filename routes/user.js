@@ -67,13 +67,14 @@ router.post('/signup', async (req, res) => {
     return res.status(200).json({ message: '사용자 정보가 성공적으로 저장되었습니다.' });
 
   } catch (err) {
-    console.error("Error"+err);
+    console.error(err);
     return res.status(500).json({ error: '사용자 정보가 성공적으로 저장되지 않았습니다.' });
   }
 });
 
 // 로그인 API
 router.post('/login', async (req, res) => {
+  
   try {
     const { user_id, password } = req.body
 
@@ -97,14 +98,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
     }
 
-    // 로그인 성공 시 세션 생성 또는 토큰 발급 등의 작업 수행
-    req.session.user = {
-      user_id: user.dataValues.user_id,
-      name: user.dataValues.name,
-      email: user.dataValues.email,
-    };
-
-    return res.status(200).json({ message: '로그인 성공', user: req.session.user });
+    return res.status(200).json({ message: '로그인 성공', id : user.id });
     // return res.status(200).json({ message: '로그인 성공' });
 
   } catch (err) {
