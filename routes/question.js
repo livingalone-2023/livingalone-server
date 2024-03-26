@@ -7,8 +7,7 @@ const crypto = require('crypto');
 const router = express.Router();
 
 // 질문 업로드 api
-router.post('/:user_id', async (req, res) => {
-  const userId = req.params.user_id
+router.post('/', async (req, res) => {
   try {
     const question = await Question.create(req.body);
 
