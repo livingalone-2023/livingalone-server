@@ -9,5 +9,6 @@ const Answer = require('./answer')(sequelize);
 module.exports = {
   User,
   Question,
-  Answer
+  Answer,
+  Like
 }
