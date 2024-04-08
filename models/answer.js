@@ -22,7 +22,7 @@ const Answer = (sequelize) => sequelize.define('answers', {
     type: DataTypes.TINYINT,
     allowNull: false,
   },
-  user_id: {
+  user_pk: {
     type: DataTypes.BIGINT,
     allowNull: false,
     references: {
