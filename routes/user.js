@@ -43,6 +43,10 @@ router.put('/password', async (req, res) => {
       return res.status(500).json({ message: '서버 오류로 인해 비밀번호 변경에 실패했습니다.' });
   }
 });
+
+
+
+
 // 회원가입 API
 router.post('/signup', async (req, res) => {
   try {
@@ -71,6 +75,10 @@ router.post('/signup', async (req, res) => {
     return res.status(500).json({ error: '사용자 정보가 성공적으로 저장되지 않았습니다.' });
   }
 });
+
+
+
+
 
 // 로그인 API
 router.post('/login', async (req, res) => {
@@ -107,26 +115,33 @@ router.post('/login', async (req, res) => {
   }
 })
 
+
+
+
+
 //내 계정 아이디 찾기 api
-router.post('/find-id',async(req,res)=>{
-  try{
-    const {name,email}=req.body;
-    const user=await User.findOne({
+router.post('/find-id', async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    const user = await User.findOne({
       where: {
         name: name,
         email: email
-    }
+      }
     });
-    if(User){
-    return res.status(200).json({ message: `회원님의 아이디는 ${user.user_id}입니다.`  });
-    }else{
+    if (user) {
+      return res.status(200).json(user.user_id);
+    } else {
       return res.status(404).json("일치하는 정보가 없습니다.")
     }
-    }catch(error){
-      return res.status(500).json("서버 오류가 발생하였습니다.")
-    }
-  
+  } catch (error) {
+    return res.status(500).json("서버 오류가 발생하였습니다.")
+  }
+
 })
+
+
+
 
 // 유저 한 명의 정보 불러오는 API (마이페이지)
 // 유저의 아이디, 이름, 이메일만 불러옴
@@ -148,6 +163,10 @@ router.get('/:user_id', async (req, res) => {
       return res.status(500).json({ message : "유저 정보 가져오기에 실패했습니다." })
   }
 })
+
+
+
+
 
 // 유저 정보 수정
 router.patch('/:user_id', async (req, res) => {
@@ -172,6 +191,10 @@ router.patch('/:user_id', async (req, res) => {
     
   }
 })
+
+
+
+
 
 // 유저 정보 삭제
 router.delete('/:user_id', async (req, res) => {
