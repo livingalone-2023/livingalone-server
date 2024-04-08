@@ -25,7 +25,7 @@ const Question = (sequelize) => sequelize.define('questions', {
     type: DataTypes.STRING(20),
     allowNull: false,
   },
-  user_id: {
+  user_pk: {
     type: DataTypes.BIGINT,
     allowNull: false,
     references: {
