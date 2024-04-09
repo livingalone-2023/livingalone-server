@@ -1,10 +1,12 @@
 const express = require('express');
-const { Question } = require('../models');// index는 파일 이름 생략 가능 
+const { Question, User } = require('../models'); // User 모델을 가져옴
 const { Op } = require("sequelize");
 const session = require('express-session');
 const crypto = require('crypto');
+const fs = require('fs');
 
 const router = express.Router();
+
 
 // 질문 업로드 api
 router.post('/', async (req, res) => {
