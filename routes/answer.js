@@ -1,9 +1,10 @@
 const express = require('express');
-const { Answer } = require('../models');// index는 파일 이름 생략 가능 
+//const { Answer } = require('../models');// index는 파일 이름 생략 가능 
 const { Op } = require("sequelize");
 const session = require('express-session');
 const crypto = require('crypto');
-
+//const User = require('../models/User');
+const { User, Answer } = require('../models')
 const router = express.Router();
 
 // 답변 작성 api
@@ -91,19 +92,26 @@ router.delete('/:answer_id', async (req, res) => {
 
 
 
-// 모든 사용자가 작성한 답변 조회 API
+// 모든 사용자가 작성한 답변 조회 API (사용자 이름과 함께)
 router.get('/', async (req, res) => {
     try {
-        // 모든 사용자가 작성한 답변을 조회
-        const allAnswers = await Answer.findAll();
+        // 모든 사용자가 작성한 답변을 조회하고 사용자의 이름과 함께 반환
+        const allAnswers = await Answer.findAll({
+            include: {
+                model: User, // User 모델
+                attributes: ['name'], // 사용자의 이름만 포함
+                required: true // 내부 조인으로 설정하여 연결된 사용자가 있는 답변만 검색
+            }
+        });
 
-        // 조회된 모든 답변을 반환
+        // 조회된 모든 답변을 반환합니다.
         return res.status(200).json({ message: "모든 사용자가 작성한 답변을 성공적으로 불러왔습니다.", data: allAnswers });
     } catch (error) {
-        console.error('Error fetching all answers:', error);
+        console.error('모든 답변을 불러오는 중에 오류 발생:', error);
         return res.status(500).json({ error: '모든 사용자가 작성한 답변을 불러오는 중에 오류가 발생했습니다.' });
     }
 });
+
 
 
 // 내가 쓴 질문 조회 API
@@ -170,6 +178,8 @@ router.patch('/:answer_id/like', async (req, res) => {
 
 
 
-  
+  // 사용자와의 관계 설정
+Answer.belongsTo(User, { foreignKey: 'user_pk' }); // Answer 모델이 User 모델에 속한다는 관계 설정
+
 
 module.exports = router
