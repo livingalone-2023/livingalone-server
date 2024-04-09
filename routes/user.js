@@ -47,7 +47,6 @@ router.put('/password', async (req, res) => {
 
 
 
-// 회원가입 API
 router.post('/signup', async (req, res) => {
   try {
     const { user_id, name, password, email, image } = req.body;
@@ -56,7 +55,7 @@ router.post('/signup', async (req, res) => {
     const salt = crypto.randomBytes(16).toString('hex');
 
     // 사용자 비밀번호와 salt를 합쳐 해싱
-    const hashedPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('base64');
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // 회원가입
     const user = await User.create({
@@ -65,7 +64,7 @@ router.post('/signup', async (req, res) => {
       password: hashedPassword,
       email,
       salt,
-      image
+      image // 이미지 URL 추가
     })
 
     return res.status(200).json({ message: '사용자 정보가 성공적으로 저장되었습니다.' });
@@ -174,21 +173,15 @@ router.patch('/:user_id', async (req, res) => {
   const { image, name } = req.body;
   try {
     const user = await User.update({
-      image,
+      image, // 이미지 정보를 업데이트할 수 있도록 수정
       name
     }, {
       where : { id }
     })
 
-    // const editUser = await User.findOne({
-    //   where : { id }
-    // })
-    // console.log(editUser)
-
     return res.status(200).json({ "message" : "유저 정보 수정에 성공했습니다." } )
   } catch (error) {
     return res.status(500).json({ "message" : "유저 정보 수정에 실패했습니다." } )
-    
   }
 })
 
