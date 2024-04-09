@@ -160,5 +160,27 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
+//프로필 이미지 갖고오는 api 
+router.get('/:userId/profile-image-url', async (req, res) => {
+  const userId = req.params.userId; // 요청에서 사용자 ID 가져오기
+
+  try {
+      // 사용자의 정보 조회
+      const user = await User.findByPk(userId);
+
+      if (!user) {
+          return res.status(404).json({ error: '해당 사용자를 찾을 수 없습니다.' });
+      }
+
+      // 사용자의 프로필 이미지 URL 가져오기
+      const profileImageUrl = user.image; // 프로필 이미지 URL은 User 모델에서 "image" 속성으로 저장됨
+
+      // 프로필 이미지 URL 반환
+      return res.status(200).json({ profileImageUrl });
+  } catch (error) {
+      console.error('프로필 이미지 URL 조회 오류:', error);
+      return res.status(500).json({ error: '프로필 이미지 URL을 가져오는 중에 오류가 발생했습니다.' });
+  }
+});
 
 module.exports = router
