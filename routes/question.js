@@ -1,6 +1,8 @@
 const express = require('express');
-const { Question, User } = require('../models'); // User 모델을 가져옴
-const { Op } = require("sequelize");
+
+const { Question, User } = require('../models');// index는 파일 이름 생략 가능 
+const { Op, Sequelize } = require("sequelize");
+
 const session = require('express-session');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -81,9 +83,12 @@ router.get('/list/:tag_type', async (req, res) => {
 // 질문 정보 불러오는 api
 router.get('/:question_id', async (req, res) => {
   try {
-    const question_id = req.params.question_id
-    const question = await Question.findOne({
-      where : { id : question_id }
+    const questionPk = req.params.question_id
+    const question = await Question.findAll({
+      include: [{
+        model: User,
+        attributes: ['name']
+      }]
     });
 
     if(question) {
