@@ -1,5 +1,6 @@
 // models/User.js
 const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
 
 const User = (sequelize) => sequelize.define('users', {
   // 여기 sequelize는 index.js에서 전달 받음
