@@ -44,6 +44,24 @@ router.put('/password', async (req, res) => {
   }
 });
 
+// 새로운 비밀번호와 이전 비밀번호 비교 API
+router.post('/password/compare', async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+
+    // 새로운 비밀번호와 이전 비밀번호가 같은지 확인
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({ message: '새로운 비밀번호가 이전 비밀번호와 동일합니다.' });
+    }
+
+    return res.status(200).json({ message: '새로운 비밀번호가 이전 비밀번호와 다릅니다.' });
+  } catch (error) {
+    console.error('Error comparing passwords:', error);
+    return res.status(500).json({ message: '서버 오류로 인해 비밀번호 비교에 실패했습니다.' });
+  }
+});
 
 
 
