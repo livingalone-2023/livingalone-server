@@ -49,6 +49,13 @@ router.post('/password/compare', async (req, res) => {
   const { email, newPassword } = req.body;
 
   try {
+    // 이메일로 사용자 찾기
+    const user = await User.findOne({ where: { email } });
+
+    // 사용자가 존재하지 않는 경우
+    if (!user) {
+      return res.status(404).json({ message: '해당 이메일을 가진 사용자를 찾을 수 없습니다.' });
+    }
 
     // 새로운 비밀번호와 이전 비밀번호가 같은지 확인
     const isSamePassword = await bcrypt.compare(newPassword, user.password);
