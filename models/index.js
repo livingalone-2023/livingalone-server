@@ -7,6 +7,9 @@ const Question = require('./question')(sequelize);
 const Answer = require('./answer')(sequelize);
 const Like = require('./like')(sequelize);
 
+User.hasMany(Question, { foreignKey: 'user_pk' });
+Question.belongsTo(User, {foreignKey : "user_pk"});
+
 module.exports = {
   User,
   Question,
