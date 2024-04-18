@@ -13,6 +13,8 @@ const sequelize = new Sequelize(
     }
 )
 
+
+
 // 연결 테스트
 sequelize
     .authenticate() // DB와의 연결을 시도
