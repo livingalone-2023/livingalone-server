@@ -1,4 +1,5 @@
 const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
 
 const User = (sequelize) => sequelize.define('users', {
     // user_pk: 사용자의 주요 키입니다.
