@@ -119,10 +119,11 @@ router.get('/list/:tag_type', async (req, res) => {
 })
 
 // 질문 정보 불러오는 api
-router.get('/:question_id', async (req, res) => {
+router.get('/:question_pk', async (req, res) => {
   try {
-    const questionPk = req.params.question_id
-    const question = await Question.findAll({
+    const reqQuestionPk = req.params.question_pk
+    const question = await Question.findOne({
+      where : { question_pk : reqQuestionPk},
       include: [{
         model: User,
         attributes: ['name']
@@ -142,9 +143,9 @@ router.get('/:question_id', async (req, res) => {
 })
 
 // 질문 수정 api
-router.patch('/:question_id', async (req, res) => {
+router.patch('/:question_pk', async (req, res) => {
   const { title, content, tag } = req.body
-  const id = req.params.question_id
+  const id = req.params.question_pk
 
   try {
     const question = await Question.update({
@@ -172,8 +173,8 @@ router.patch('/:question_id', async (req, res) => {
 })
 
 // 질문 삭제 api
-router.delete('/:question_id', async (req, res) => {
-  const id = req.params.question_id
+router.delete('/:question_pk', async (req, res) => {
+  const id = req.params.question_pk
   try {
     Question.destroy({
       where : { id : id }
@@ -187,14 +188,14 @@ router.delete('/:question_id', async (req, res) => {
 })
 
 //내가 쓴 질문 조회 api
-router.get('/:userId', async (req, res) => {
-  const userId = req.params.userId; // 사용자의 로그인 ID를 가져옴
+router.get('/:user_pk', async (req, res) => {
+  const userId = req.params.user_pk; // 사용자의 로그인 ID를 가져옴
 
   try {
     // 사용자가 작성한 모든 질문을 조회
     const userQuestions = await Question.findAll({
       where: {
-        userId: userId
+        user_pk : userId
       }
     });
 
