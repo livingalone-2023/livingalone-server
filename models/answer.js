@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('./index'); // Sequelize 인스턴스
-const User = require('./User');
+// const sequelize = require('./index'); // Sequelize 인스턴스
+// const User = require('./User');
 
 const Answer =(sequelize) =>sequelize.define('answers', {
     answer_pk: {
@@ -24,7 +24,7 @@ const Answer =(sequelize) =>sequelize.define('answers', {
         type: DataTypes.BIGINT,
         allowNull: false,
         references: {
-            model: User, // 외래 키로 사용할 모델
+            model: users, // 외래 키로 사용할 모델
             key: 'user_pk' // 외래 키로 사용할 모델의 PK
         }
     }
