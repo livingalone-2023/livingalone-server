@@ -79,16 +79,16 @@ router.get('/:userId', async (req, res) => {
 router.delete('/:answer_id', async (req, res) => {
     const id = req.params.answer_id
     try {
-      Answer.destroy({
-        where : { id : id }
-      })
-  
-      return res.status(201).json({ "message" : "답변 삭제 성공" })
-  
+        Answer.destroy({
+            where: { id: id }
+        })
+
+        return res.status(201).json({ "message": "답변 삭제 성공" })
+
     } catch (error) {
-      return res.status(500).json({ "message" : "답변 삭제 실패" })
+        return res.status(500).json({ "message": "답변 삭제 실패" })
     }
-  })
+})
 
 
 
@@ -198,7 +198,15 @@ router.get('/:userId/profile-image-url', async (req, res) => {
     }
 });
 
+"SELECT name FROM answers INNER JOIN users ON answers.user_id = Users.id"
 
+Answer.findAll({
+    include: {
+        model: User,
+        attributes: ['name'],
+        required: true
+    }
+})
 
 
   // 사용자와의 관계 설정

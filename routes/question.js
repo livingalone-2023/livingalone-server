@@ -83,27 +83,18 @@ router.get('/list/paginated', async (req, res) => {
 
 
 // tag에 따른 질문 list 정보 불러오는 api
-router.get('/list/:tag_type', async (req, res) => {
-  const tag = req.params.tag_type;
+router.get('/list/tag', async (req, res) => {
+  console.log('req.path ' + req.path)
+  console.log('req.params ' + req.params)
+  console.log('req.query ' + req.query)
+  
+  const tag = req.query.tag;
   try {
     let questions;
-    if(tag == 1) {
-      questions = await Question.findAll({
-        where : { tag : '주거' }
-      });
-    } else if(tag == 2) {
-      questions = await Question.findAll({
-        where : { tag : '비용' }
-      });
-    } else if(tag == 3) {
-      questions = await Question.findAll({
-        where : { tag : '인테리어' }
-      });
-    } else if(tag == 4) {
-      questions = await Question.findAll({
-        where : { tag : '생활꿀팁' }
-      });
-    }
+
+    questions = await Question.findAll({
+      where : { tag }
+    });
     
     if(questions) {
       return res.status(200).json( { "message" : "주거 질문 list 불러오기 성공", questions } )
