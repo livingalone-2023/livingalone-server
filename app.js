@@ -2,7 +2,8 @@ const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
 const multer = require('multer');
-const sequelize = require("./config/config");
+// const sequelize = require("./config/config");
+const sequelize = require("./models");
 
 const path = require('path');
 const bodyParse = require('body-parser')
