@@ -50,7 +50,3 @@ app.use(session({
 app.use('/users', userRouter)
 app.use('/questions', questionRouter)
 app.use('/answers', answerRouter)
-
-app.listen(port, () => {
-  console.log(port, '번 포트에서 대기 중');
-});
