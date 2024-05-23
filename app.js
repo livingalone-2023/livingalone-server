@@ -19,12 +19,17 @@ const questionRouter = require('./routes/question')
 //   return res.send("홀로서기");
 // })
 
-sequelize.sync()
+sequelize.sync({ alter: true }) // 이 옵션은 테이블 구조를 현재 모델 정의와 맞도록 변경합니다.
   .then(() => {
-    console.log('Database synced')
+    console.log('Database & tables created/updated!');
+    
+    // 서버 시작
+    app.listen(port, () => {
+      console.log(port, '번 포트에서 대기 중');
+    });
   })
-  .catch((err) => {
-    console.error('Error syncing database:', err)
+  .catch((error) => {
+    console.error('Unable to sync database:', error);
   });
 
 // 미들웨어
