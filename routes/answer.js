@@ -51,30 +51,6 @@ router.patch('/:answer_id', async (req, res) => {
     }
 })
 
-// 사용자가 작성한 모든 답변 리스트를 반환하는 엔드포인트
-router.get('/:userId', async (req, res) => {
-    const userId = req.params.userId; // 사용자의 로그인 ID를 가져옴
-
-    try {
-        // 사용자가 작성한 모든 답변을 조회
-        const userAnswers = await Answer.findAll({
-            where: {
-                userId: userId // userId가 매개변수로 받은 사용자의 ID와 일치하는 답변을 찾음
-            }
-        });
-
-        if (userAnswers) {
-            // 사용자가 작성한 모든 답변을 JSON 형식으로 응답
-            return res.status(200).json(userAnswers);
-        } else {
-            return res.status(404).json({ "message": "사용자의 답변을 찾을 수 없습니다." });
-        }
-    } catch (error) {
-        console.error('Error fetching user answers:', error);
-        res.status(500).json({ "message": "서버 오류가 발생하였습니다." }); // 오류 발생 시 500 에러 응답
-    }
-});
-
 
 // 답변 삭제 api
 router.delete('/:answer_id', async (req, res) => {
@@ -167,28 +143,6 @@ router.patch('/:answer_id/accept', async (req, res) => {
     }
 });
 
-
-
-// 답변 좋아요 API
-router.patch('/:answer_id/like', async (req, res) => {
-    const answerId = req.params.answer_id;
-    try {
-        const updatedAnswer = await Answer.findByPk(answerId);
-        if (updatedAnswer) {
-            // 답변이 존재하는 경우
-            await Answer.update({ isLiked: 1 }, { where: { id: answerId } });
-            return res.status(200).json({ "message": "좋아요를 성공적으로 눌렀습니다" });
-        } else {
-            // 답변이 존재하지 않는 경우
-            return res.status(404).json({ "message": "해당 답변을 찾을 수 없습니다." });
-        }
-    } catch (error) {
-        // 서버 오류 발생 시
-        console.log(error);
-        return res.status(500).json({ "message": "서버 오류가 발생하였습니다." });
-    }
-});
-
 router.get('/:userId/profile-image-url', async (req, res) => {
     const userId = req.params.userId; // 요청에서 사용자 ID 가져오기
 
@@ -210,15 +164,5 @@ router.get('/:userId/profile-image-url', async (req, res) => {
         return res.status(500).json({ error: '프로필 이미지 URL을 가져오는 중에 오류가 발생했습니다.' });
     }
 });
-
-"SELECT name FROM answers INNER JOIN users ON answers.user_id = Users.id"
-
-Answer.findAll({
-    include: {
-        model: User,
-        attributes: ['name'],
-        required: true
-    }
-})
 
 module.exports = router
