@@ -16,10 +16,6 @@ const Answer =(sequelize) =>sequelize.define('answers', {
         type: DataTypes.TINYINT,
         allowNull: false,
     },
-    isLiked: {
-        type: DataTypes.TINYINT,
-        allowNull: false,
-    },
     user_pk: {
         type: DataTypes.BIGINT,
         allowNull: false,
