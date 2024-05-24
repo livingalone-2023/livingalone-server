@@ -236,6 +236,22 @@ router.get('/:question_pk', async (req, res) => {
   }
 });
 
+// 조회수 증가 api
+router.post('/:question_pk', async (req, res) => {
+  try {
+    const question = await Question.findByPk(req.params.question_pk);
 
+    if (question) {
+      question.views += 1;
+      await question.save();
+      return res.status(200).json({ message: "조회수 증가 성공", views: question.views });
+    } else {
+      return res.status(404).json({ message: "질문을 찾을 수 없습니다." });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "조회수를 증가하는 중에 오류가 발생했습니다." });
+  }
+});
 
 module.exports = router
