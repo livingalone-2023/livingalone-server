@@ -20,6 +20,7 @@ const Question = (sequelize) => sequelize.define('questions', {
     views: {
       type: DataTypes.BIGINT,
       allowNull: false,
+      defaultValue:0,
     },
     tag: {
       type: DataTypes.STRING(20),
