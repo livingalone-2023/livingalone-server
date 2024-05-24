@@ -149,22 +149,24 @@ router.patch('/:answer_id/accept', async (req, res) => {
 
     try {
         // 해당 answerId를 가진 답변을 채택 처리
-        const updatedAnswer = await Answer.update(
+        await Answer.update(
             { isAccepted: true },
-            { where: { id: answerId } }
+            { where: { answer_pk: answerId } }
         );
 
+        const updatedAnswer = await Answer.findOne(
+            {where : { answer_pk: answerId }}
+        )
+        console.log(updatedAnswer)
+
         // 업데이트된 답변이 존재하는 경우
-        if (updatedAnswer > 0) {
-            return res.status(200).json({ message: "답변이 채택되었습니다." });
-        } else {
-            return res.status(404).json({ message: "해당 답변을 찾을 수 없습니다." });
-        }
+        return res.status(200).json({ message: "답변이 채택되었습니다.", updatedAnswer });
     } catch (error) {
         console.error('Error accepting answer:', error);
         return res.status(500).json({ message: "서버 오류로 인해 답변 채택에 실패했습니다." });
     }
 });
+
 
 
 // 답변 좋아요 API
