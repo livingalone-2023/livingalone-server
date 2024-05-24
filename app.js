@@ -20,7 +20,7 @@ const questionRouter = require('./routes/question')
 //   return res.send("홀로서기");
 // })
 
-sequelize.sync({ alter: true }) // 이 옵션은 테이블 구조를 현재 모델 정의와 맞도록 변경합니다.
+sequelize.sync() // 이 옵션은 테이블 구조를 현재 모델 정의와 맞도록 변경합니다.
   .then(() => {
     console.log('Database & tables created/updated!');
     
