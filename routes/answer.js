@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const { User, Answer } = require('../models')
 const router = express.Router();
 const fs = require('fs');
+
 // 답변 작성 api
 router.post('/', async (req, res) => {
     try {
@@ -24,36 +25,36 @@ router.post('/', async (req, res) => {
 
 
 //답변 수정 api 
-router.patch('/:answer_id',async(req,res)=>{
-const {isAccepted,isLiked}=req.body
-const id=req.params.answer_id
-try{
-    const answer=await Answer.update({
-        isAccepted:isAccepted,
-        isLiked:isLiked
-    },{
-        where:{id:id}
-    })
-    const editedAnswer=await Answer.findOne({
-        where :{id:id}
-    })
-    console.log("***",editedAnswer.dataValues)
-    if(answer){
-        return res.status(201).json({"message":"답변 수정이 정상적으로 되었습니다."})
-    }else{
-        return res.status(404).json({"message":"답변 수정이 정상적으로 실패하였습니다."})
+router.patch('/:answer_id', async (req, res) => {
+    const { isAccepted, isLiked } = req.body
+    const id = req.params.answer_id
+    try {
+        const answer = await Answer.update({
+            isAccepted: isAccepted,
+            isLiked: isLiked
+        }, {
+            where: { answer_pk: id }
+        })
+        const editedAnswer = await Answer.findOne({
+            where: { answer_pk: id }
+        })
+        console.log("***", editedAnswer.dataValues)
+        if (answer) {
+            return res.status(201).json({ "message": "답변 수정이 정상적으로 되었습니다." })
+        } else {
+            return res.status(404).json({ "message": "답변 수정이 정상적으로 실패하였습니다." })
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "서버 오류가 발생하였습니다." })
+        //console.log(error);
     }
-}catch(error){
-    console.log(error);
-    return res.status(500).json({"message":"서버 오류가 발생하였습니다."})
-    //console.log(error);
-}
 })
 
 // 사용자가 작성한 모든 답변 리스트를 반환하는 엔드포인트
 router.get('/:userId', async (req, res) => {
     const userId = req.params.userId; // 사용자의 로그인 ID를 가져옴
-  
+
     try {
         // 사용자가 작성한 모든 답변을 조회
         const userAnswers = await Answer.findAll({
@@ -207,10 +208,5 @@ Answer.findAll({
         required: true
     }
 })
-
-
-  // 사용자와의 관계 설정
-Answer.belongsTo(User, { foreignKey: 'user_pk' }); // Answer 모델이 User 모델에 속한다는 관계 설정
-
 
 module.exports = router
