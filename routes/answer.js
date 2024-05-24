@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const { User, Answer } = require('../models')
 const router = express.Router();
 const fs = require('fs');
+
 // 답변 작성 api
 router.post('/', async (req, res) => {
     try {
@@ -24,55 +25,31 @@ router.post('/', async (req, res) => {
 
 
 //답변 수정 api 
-router.patch('/:answer_id',async(req,res)=>{
-const {isAccepted,isLiked}=req.body
-const id=req.params.answer_id
-try{
-    const answer=await Answer.update({
-        isAccepted:isAccepted,
-        isLiked:isLiked
-    },{
-        where:{id:id}
-    })
-    const editedAnswer=await Answer.findOne({
-        where :{id:id}
-    })
-    console.log("***",editedAnswer.dataValues)
-    if(answer){
-        return res.status(201).json({"message":"답변 수정이 정상적으로 되었습니다."})
-    }else{
-        return res.status(404).json({"message":"답변 수정이 정상적으로 실패하였습니다."})
-    }
-}catch(error){
-    console.log(error);
-    return res.status(500).json({"message":"서버 오류가 발생하였습니다."})
-    //console.log(error);
-}
-})
-
-// 사용자가 작성한 모든 답변 리스트를 반환하는 엔드포인트
-router.get('/:userId', async (req, res) => {
-    const userId = req.params.userId; // 사용자의 로그인 ID를 가져옴
-  
+router.patch('/:answer_id', async (req, res) => {
+    const { isAccepted, isLiked } = req.body
+    const id = req.params.answer_id
     try {
-        // 사용자가 작성한 모든 답변을 조회
-        const userAnswers = await Answer.findAll({
-            where: {
-                userId: userId // userId가 매개변수로 받은 사용자의 ID와 일치하는 답변을 찾음
-            }
-        });
-
-        if (userAnswers) {
-            // 사용자가 작성한 모든 답변을 JSON 형식으로 응답
-            return res.status(200).json(userAnswers);
+        const answer = await Answer.update({
+            isAccepted: isAccepted,
+            isLiked: isLiked
+        }, {
+            where: { answer_pk: id }
+        })
+        const editedAnswer = await Answer.findOne({
+            where: { answer_pk: id }
+        })
+        console.log("***", editedAnswer.dataValues)
+        if (answer) {
+            return res.status(201).json({ "message": "답변 수정이 정상적으로 되었습니다." })
         } else {
-            return res.status(404).json({ "message": "사용자의 답변을 찾을 수 없습니다." });
+            return res.status(404).json({ "message": "답변 수정이 정상적으로 실패하였습니다." })
         }
     } catch (error) {
-        console.error('Error fetching user answers:', error);
-        res.status(500).json({ "message": "서버 오류가 발생하였습니다." }); // 오류 발생 시 500 에러 응답
+        console.log(error);
+        return res.status(500).json({ "message": "서버 오류가 발생하였습니다." })
+        //console.log(error);
     }
-});
+})
 
 
 // 답변 삭제 api
@@ -113,24 +90,34 @@ router.get('/', async (req, res) => {
 });
 
 
-
-// 내가 쓴 질문 조회 API
+// 내가 쓴 댓글 조회 API
 router.get('/list/:user_id', async (req, res) => {
     const user_id = req.params.user_id; // 사용자의 ID를 가져옴
 
     try {
-        // 사용자가 작성한 모든 질문을 조회
-        const userQuestions = await Answer.findAll({
-            where: { user_id: user_id }
+        const user = await User.findOne({
+            where : { user_id : user_id }
+        })
+
+        // 사용자가 작성한 모든 댓글을 조회
+        const userAnswers = await Answer.findAll({
+            where: { user_pk : user.user_pk }
         });
 
-        // 사용자가 작성한 모든 질문과 그에 대한 정보를 반환
-        return res.status(200).json({ message: "사용자의 질문을 모두 불러왔습니다.", data: userQuestions });
+        // 적은 댓글이 없을 때 예외처리
+        if(userAnswers.length == 0) {
+            return res.status(200).json({ message: "아직 적은 댓글이 없습니다.", data: userAnswers });
+        } else {
+            // 사용자가 작성한 모든 질문과 그에 대한 정보를 반환
+            return res.status(200).json({ message: "사용자의 댓글을 모두 불러왔습니다.", data: userAnswers });
+        }
+
     } catch (error) {
         console.error('Error fetching user questions:', error);
-        return res.status(500).json({ error: '사용자의 질문을 불러오는 중에 오류가 발생했습니다.' });
+        return res.status(500).json({ error: '사용자의 댓글을 불러오는 중에 오류가 발생했습니다.' });
     }
 });
+
 
 // 답변 채택 API
 router.patch('/:answer_id/accept', async (req, res) => {
@@ -138,41 +125,21 @@ router.patch('/:answer_id/accept', async (req, res) => {
 
     try {
         // 해당 answerId를 가진 답변을 채택 처리
-        const updatedAnswer = await Answer.update(
+        await Answer.update(
             { isAccepted: true },
-            { where: { id: answerId } }
+            { where: { answer_pk: answerId } }
         );
 
+        const updatedAnswer = await Answer.findOne(
+            {where : { answer_pk: answerId }}
+        )
+        console.log(updatedAnswer)
+
         // 업데이트된 답변이 존재하는 경우
-        if (updatedAnswer > 0) {
-            return res.status(200).json({ message: "답변이 채택되었습니다." });
-        } else {
-            return res.status(404).json({ message: "해당 답변을 찾을 수 없습니다." });
-        }
+        return res.status(200).json({ message: "답변이 채택되었습니다.", updatedAnswer });
     } catch (error) {
         console.error('Error accepting answer:', error);
         return res.status(500).json({ message: "서버 오류로 인해 답변 채택에 실패했습니다." });
-    }
-});
-
-
-// 답변 좋아요 API
-router.patch('/:answer_id/like', async (req, res) => {
-    const answerId = req.params.answer_id;
-    try {
-        const updatedAnswer = await Answer.findByPk(answerId);
-        if (updatedAnswer) {
-            // 답변이 존재하는 경우
-            await Answer.update({ isLiked: 1 }, { where: { id: answerId } });
-            return res.status(200).json({ "message": "좋아요를 성공적으로 눌렀습니다" });
-        } else {
-            // 답변이 존재하지 않는 경우
-            return res.status(404).json({ "message": "해당 답변을 찾을 수 없습니다." });
-        }
-    } catch (error) {
-        // 서버 오류 발생 시
-        console.log(error);
-        return res.status(500).json({ "message": "서버 오류가 발생하였습니다." });
     }
 });
 
@@ -197,20 +164,5 @@ router.get('/:userId/profile-image-url', async (req, res) => {
         return res.status(500).json({ error: '프로필 이미지 URL을 가져오는 중에 오류가 발생했습니다.' });
     }
 });
-
-"SELECT name FROM answers INNER JOIN users ON answers.user_id = Users.id"
-
-Answer.findAll({
-    include: {
-        model: User,
-        attributes: ['name'],
-        required: true
-    }
-})
-
-
-  // 사용자와의 관계 설정
-Answer.belongsTo(User, { foreignKey: 'user_pk' }); // Answer 모델이 User 모델에 속한다는 관계 설정
-
 
 module.exports = router
