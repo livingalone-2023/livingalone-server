@@ -197,24 +197,29 @@ router.delete('/:question_pk', async (req, res) => {
 });
 
 
-//내가 쓴 질문 조회 api
-router.get('/:user_pk', async (req, res) => {
-  const userId = req.params.user_pk; // 사용자의 로그인 ID를 가져옴
+// 내가 쓴 질문 조회 api
+router.get('/list/:user_pk', async (req, res) => {
+  const userId = req.params.user_pk; 
 
   try {
     // 사용자가 작성한 모든 질문을 조회
     const userQuestions = await Question.findAll({
       where: {
-        user_pk : userId
+        user_pk: userId 
       }
     });
 
-    res.json(userQuestions);
+    if (userQuestions.length > 0) {
+      return res.status(200).json(userQuestions);
+    } else {
+      return res.status(404).json({ message: "사용자가 작성한 질문이 없습니다." });
+    }
   } catch (error) {
     console.error('Error fetching user questions:', error);
-    res.status(500).json({ error: 'Error fetching user questions' }); // 오류 발생 시 500 에러 응답
+    res.status(500).json({ error: '사용자 질문을 가져오는 중에 오류가 발생했습니다.' }); // 오류 발생 시 500 에러 응답
   }
 });
+
 
 //프로필 이미지 갖고오는 api 
 router.get('/:userId/profile-image-url', async (req, res) => {
