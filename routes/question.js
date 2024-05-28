@@ -42,42 +42,58 @@ router.get('/list', async (req, res) => {
   }
 });
 
-router.get('/list/paginated', async (req, res) => {
+//페이지네이션 api
+router.get('/list', async (req, res) => {
+  const tag = req.query.tag;
+  const page = parseInt(req.query.page) || 1;
+  const perPage = 5;
+  const startIndex = (page - 1) * perPage;
+
   try {
-    const page = parseInt(req.query.page) || 1; // 요청된 페이지. 기본값은 1
-    const perPage = 5; // 페이지당 항목 수
-    const startIndex = (page - 1) * perPage;
+    let questions;
 
-    const questions = await Question.findAll({ offset: startIndex, limit: perPage });
-
-    const totalCount = await Question.count();
-
-    const results = {};
-
-    const endIndex = page * perPage;
-
-    if (endIndex < totalCount) {
-      results.next = {
-        page: page + 1,
-        perPage: perPage
-      };
+    if (tag) {
+      questions = await Question.findAndCountAll({
+        where: { tag: tag },
+        offset: startIndex,
+        limit: perPage
+      });
+    } else {
+      questions = await Question.findAndCountAll({
+        offset: startIndex,
+        limit: perPage
+      });
     }
+
+    const totalCount = questions.count;
+    const totalPages = Math.ceil(totalCount / perPage);
+
+    const results = {
+      currentPage: page,
+      totalPages: totalPages
+    };
 
     if (startIndex > 0) {
-      results.previous = {
-        page: page - 1,
-        perPage: perPage
-      };
+      results.previousPage = page - 1;
     }
 
-    if (questions.length > 0) {
-      return res.status(200).json({ message: "페이징된 질문 list 불러오기 성공", questions, pagination: results });
-    } else {
-      return res.status(400).json({ message: "페이징된 질문 list 불러오기 실패" });
+    if (startIndex + perPage < totalCount) {
+      results.nextPage = page + 1;
     }
+
+    if (questions.rows.length > 0) {
+      return res.status(200).json({
+        message: "질문 list 불러오기 성공",
+        questions: questions.rows,
+        pagination: results
+      });
+    } else {
+      return res.status(400).json({ message: "질문 list 불러오기 실패" });
+    }
+
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "페이징된 질문 list 불러오기 실패" });
+    return res.status(500).json({ message: "질문 list 불러오기 실패" });
   }
 });
 
