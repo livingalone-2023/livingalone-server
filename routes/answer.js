@@ -23,7 +23,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-
 //답변 수정 api 
 router.patch('/:answer_id', async (req, res) => {
     const { isAccepted, isLiked } = req.body
