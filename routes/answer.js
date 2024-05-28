@@ -176,16 +176,21 @@ router.get('/question/:question_pk', async (req, res) => {
     const question_pk = req.params.question_pk; // 요청에서 질문의 primary key 가져오기
 
     try {
-        // 질문에 대한 모든 답변을 조회
+        // 질문에 대한 모든 답변을 조회하고 사용자 정보와 함께 반환
         const questionAnswers = await Answer.findAll({
-            where: { question_pk: question_pk }
+            where: { question_pk: question_pk },
+            include: {
+                model: User, // User 모델
+                attributes: ['name'], // 사용자의 이름만 포함
+                required: true // 내부 조인으로 설정하여 연결된 사용자가 있는 답변만 검색
+            }
         });
 
         // 적은 답변이 없을 때 예외처리
         if (questionAnswers.length === 0) {
             return res.status(200).json({ message: "아직 답변이 없습니다.", data: questionAnswers });
         } else {
-            // 질문에 대한 모든 답변 반환
+            // 질문에 대한 모든 답변과 사용자 정보 반환
             return res.status(200).json({ message: "질문에 대한 모든 답변을 성공적으로 불러왔습니다.", data: questionAnswers });
         }
 
@@ -194,4 +199,5 @@ router.get('/question/:question_pk', async (req, res) => {
         return res.status(500).json({ error: '질문에 대한 답변을 불러오는 중에 오류가 발생했습니다.' });
     }
 });
+
 module.exports = router

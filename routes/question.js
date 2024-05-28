@@ -176,18 +176,26 @@ router.patch('/:question_pk', async (req, res) => {
 
 // 질문 삭제 api
 router.delete('/:question_pk', async (req, res) => {
-  const id = req.params.question_pk
+  const question_pk = req.params.question_pk; 
+
   try {
-    Question.destroy({
-      where : { id : id }
-    })
+    const deletedRowCount = await Question.destroy({
+      where: { question_pk: question_pk } 
+    });
 
-    return res.status(201).json({ "message" : "질문 삭제 성공" })
-
+    if (deletedRowCount > 0) {
+      // 하나 이상의 레코드가 삭제된 경우
+      return res.status(200).json({ message: "질문 삭제 성공" });
+    } else {
+      // 삭제된 레코드가 없는 경우
+      return res.status(404).json({ message: "삭제할 질문을 찾을 수 없습니다." });
+    }
   } catch (error) {
-    return res.status(500).json({ "message" : "질문 삭제 실패" })
+    console.error(error);
+    return res.status(500).json({ message: "질문 삭제 실패" });
   }
-})
+});
+
 
 //내가 쓴 질문 조회 api
 router.get('/:user_pk', async (req, res) => {
