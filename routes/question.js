@@ -149,35 +149,30 @@ router.get('/:question_pk', async (req, res) => {
   }
 })
 
-// 질문 수정 api
 router.patch('/:question_pk', async (req, res) => {
-  const { title, content, tag } = req.body
-  const id = req.params.question_pk
+  const { title, content, tag } = req.body;
+  const question_pk = req.params.question_pk; 
 
   try {
-    const question = await Question.update({
-      title : title,
-      content : content,
-      tag : tag
-    }, {
-      where : { id : id }
-    })
+    const [updatedRowsCount] = await Question.update(
+      { title, content, tag }, 
+      { where: { question_pk: question_pk } } 
+    );
 
-    const editedQuestion = await Question.findOne({
-      where : { id : id }
-    })
-
-    console.log("***", editedQuestion.dataValues)
-
-    if(question) {
-      return res.status(201).json({ "message" : "질문 수정 성공" })
+    if (updatedRowsCount > 0) {
+      // 수정된 레코드가 하나 이상인 경우
+      return res.status(200).json({ message: "질문 수정 성공" });
     } else {
-      return res.status(404).json({ "message" : "질문 수정 실패" })
+      // 수정된 레코드가 없는 경우
+      return res.status(404).json({ message: "질문 수정 실패" });
     }
   } catch (error) {
-    return res.status(500).json({ "message" : "질문 수정 실패" })
+    console.error(error);
+    return res.status(500).json({ message: "질문 수정 실패" });
   }
-})
+});
+
+
 
 // 질문 삭제 api
 router.delete('/:question_pk', async (req, res) => {
