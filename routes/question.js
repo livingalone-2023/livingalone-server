@@ -261,7 +261,7 @@ router.get('/view/:question_pk', async (req, res) => {
 });
 
 // 조회수 증가 api
-router.post('/:question_pk', async (req, res) => {
+router.post('/view/:question_pk', async (req, res) => {
   try {
     const question = await Question.findByPk(req.params.question_pk);
 
@@ -277,5 +277,6 @@ router.post('/:question_pk', async (req, res) => {
     return res.status(500).json({ message: "조회수를 증가하는 중에 오류가 발생했습니다." });
   }
 });
+
 
 module.exports = router
