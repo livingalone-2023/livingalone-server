@@ -99,22 +99,18 @@ router.get('/', async (req, res) => {
 });
 
 
-// 내가 쓴 댓글 조회 API
-router.get('/list/:user_id', async (req, res) => {
-    const user_id = req.params.user_id; // 사용자의 ID를 가져옴
+// 내가 쓴 답변 조회 API
+router.get('/list/:user_pk', async (req, res) => {
+    const user_pk = req.params.user_pk; // 사용자의 user_pk를 가져옴
 
     try {
-        const user = await User.findOne({
-            where : { user_id : user_id }
-        })
-
         // 사용자가 작성한 모든 댓글을 조회
         const userAnswers = await Answer.findAll({
-            where: { user_pk : user.user_pk }
+            where: { user_pk: user_pk }
         });
 
         // 적은 댓글이 없을 때 예외처리
-        if(userAnswers.length == 0) {
+        if (userAnswers.length === 0) {
             return res.status(200).json({ message: "아직 적은 댓글이 없습니다.", data: userAnswers });
         } else {
             // 사용자가 작성한 모든 질문과 그에 대한 정보를 반환
@@ -126,6 +122,7 @@ router.get('/list/:user_id', async (req, res) => {
         return res.status(500).json({ error: '사용자의 댓글을 불러오는 중에 오류가 발생했습니다.' });
     }
 });
+
 
 
 // 답변 채택 API
