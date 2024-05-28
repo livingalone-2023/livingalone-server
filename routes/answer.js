@@ -62,19 +62,28 @@ router.patch('/:answer_id', async (req, res) => {
 
 
 // 답변 삭제 api
-router.delete('/:answer_id', async (req, res) => {
-    const id = req.params.answer_id
+router.delete('/:answer_pk', async (req, res) => {
+    const answer_pk = req.params.answer_pk; 
+
     try {
-        Answer.destroy({
-            where: { id: id }
-        })
+        // 해당 answer_pk를 가진 답변 삭제
+        const deletedRowCount = await Answer.destroy({
+            where: { answer_pk: answer_pk }
+        });
 
-        return res.status(201).json({ "message": "답변 삭제 성공" })
-
+        // 삭제된 레코드가 있으면 성공 메시지 반환
+        if (deletedRowCount > 0) {
+            return res.status(200).json({ message: "답변 삭제 성공" });
+        } else {
+            // 삭제된 레코드가 없으면 해당 답변을 찾을 수 없다는 메시지 반환
+            return res.status(404).json({ message: "삭제할 답변을 찾을 수 없습니다." });
+        }
     } catch (error) {
-        return res.status(500).json({ "message": "답변 삭제 실패" })
+        console.error(error);
+        return res.status(500).json({ message: "답변 삭제 실패" });
     }
-})
+});
+
 
 
 
