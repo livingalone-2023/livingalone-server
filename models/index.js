@@ -10,10 +10,10 @@ User.hasMany(Question, { foreignKey: 'user_pk' });
 User.hasMany(Answer, { foreignKey: 'user_pk'});
 
 Question.belongsTo(User, {foreignKey : 'user_pk'});
-// Question.hasMany(Answer, {foreignKey : 'question_pk'});
+Question.hasMany(Answer, {foreignKey : 'question_pk'});
 
 Answer.belongsTo(User, {foreignKey : 'user_pk'});
-// Answer.belongsTo(Question, {foreignKey : 'question_pk'});
+Answer.belongsTo(Question, {foreignKey : 'question_pk'});
 
 
 
