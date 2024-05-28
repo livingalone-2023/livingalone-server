@@ -23,6 +23,14 @@ const Answer =(sequelize) =>sequelize.define('answers', {
             model: 'users', // 외래 키로 사용할 모델
             key: 'user_pk' // 외래 키로 사용할 모델의 PK
         }
+    },
+    question_pk : {
+        type : DataTypes.BIGINT,
+        allowNull : false,
+        references: {
+            model: 'questions',
+            key: 'question_pk'
+        }
     }
 });
 
