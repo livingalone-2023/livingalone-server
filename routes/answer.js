@@ -4,22 +4,33 @@ const { Op } = require("sequelize");
 const session = require('express-session');
 const crypto = require('crypto');
 //const User = require('../models/User');
-const { User, Answer } = require('../models')
+const { User, Answer, Question } = require('../models'); 
 const router = express.Router();
 const fs = require('fs');
 
-// 답변 작성 api
+// 답변 작성 API
 router.post('/', async (req, res) => {
     try {
-        const answer = await Answer.create(req.body); // 요청의 내용으로 새로운 답변 생성
-        if (answer) {
-            return res.status(200).json({ "message": "답변이 성공적으로 등록되었습니다." });
-        } else {
-            return res.status(400).json({ "message": "답변 등록에 실패했습니다." });
+        const { answer, isAccepted, user_pk, question_pk } = req.body;
+
+        // 질문이 존재하는지 확인
+        const question = await Question.findByPk(question_pk);
+        if (!question) {
+            return res.status(404).json({ message: '해당 질문을 찾을 수 없습니다.' });
         }
+
+        // 답변 생성
+        const newAnswer = await Answer.create({
+            answer,
+            isAccepted,
+            user_pk,
+            question_pk,
+        });
+
+        return res.status(200).json({ message: '답변이 성공적으로 등록되었습니다.'});
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ "message": "서버 오류로 답변 등록에 실패했습니다." });
+        return res.status(500).json({ message: '서버 오류로 답변 등록에 실패했습니다.' });
     }
 });
 
