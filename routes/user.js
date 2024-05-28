@@ -87,7 +87,7 @@ router.post('/signup', async (req, res) => {
       image // 이미지 URL 추가
     })
 
-    return res.status(200).json({ message: '사용자 정보가 성공적으로 저장되었습니다.' });
+    return res.status(200).json({ message: '사용자 정보가 성공적으로 저장되었습니다.' , user_id: user.user_id });
 
   } catch (err) {
     console.error(err);
