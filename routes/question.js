@@ -248,18 +248,29 @@ router.get('/:userId/profile-image-url', async (req, res) => {
 // 조회수 가져오기 API
 router.get('/view/:question_pk', async (req, res) => {
   try {
-    const question = await Question.findByPk(req.params.question_pk);
+    // 질문 정보를 가져옴
+    const question = await Question.findByPk(req.params.question_pk, {
+      include: [{
+        model: User,
+        attributes: ['name']
+      }]
+    });
 
     if (question) {
-      return res.status(200).json({ views: question.views });
+      // 조회수 증가
+      question.views += 1;
+      await question.save();
+
+      return res.status(200).json({ message: "조회수 및 질문 정보 불러오기 성공", question });
     } else {
       return res.status(404).json({ message: "질문을 찾을 수 없습니다." });
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "조회수를 가져오는 중에 오류가 발생했습니다." });
+    return res.status(500).json({ message: "조회수 및 질문 정보를 가져오는 중에 오류가 발생했습니다." });
   }
 });
+
 
 // 조회수 증가 API
 router.post('/view/:question_pk', async (req, res) => {
