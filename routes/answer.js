@@ -36,24 +36,34 @@ router.post('/', async (req, res) => {
 
 // 답변 수정 API
 router.patch('/:answer_id', async (req, res) => {
-    const { isAccepted, isLiked } = req.body;
+    const { answer } = req.body;
     const id = req.params.answer_id;
     try {
-        const answer = await Answer.update({
-            isAccepted: isAccepted,
-            isLiked: isLiked
-        }, {
+        const idExistAnswer = await Answer.findOne({
             where: { answer_pk: id }
         });
-        const editedAnswer = await Answer.findOne({
-            where: { answer_pk: id }
-        });
-        console.log("***", editedAnswer.dataValues);
-        if (answer) {
-            return res.status(201).json({ "message": "답변 수정이 정상적으로 되었습니다." });
+
+        // 존재하는 answer인지
+        if(idExistAnswer) {
+            const updatedAnswer = await Answer.update({
+                answer: answer
+            }, {
+                where: { answer_pk: id }
+            });
+            const editedAnswer = await Answer.findOne({
+                where: { answer_pk: id }
+            });
+            console.log("***", editedAnswer);
+            if (updatedAnswer) {
+                return res.status(201).json({ "message": "답변 수정이 정상적으로 되었습니다." });
+            } else {
+                return res.status(404).json({ "message": "답변 수정이 정상적으로 실패하였습니다." });
+            }
         } else {
-            return res.status(404).json({ "message": "답변 수정이 정상적으로 실패하였습니다." });
+            return res.status(404).json({ "message": "없는 답변입니다." });
         }
+
+        
     } catch (error) {
         console.log(error);
         return res.status(500).json({ "message": "서버 오류가 발생하였습니다." });
