@@ -168,6 +168,31 @@ router.patch('/:answer_id/accept', async (req, res) => {
     }
 });
 
+// 답변 채택 (취소) 수정 API
+router.patch('/:answer_id/not-accept', async (req, res) => {
+    const answerId = req.params.answer_id; // answer_id 대신 answerId로 변수명 수정
+
+    try {
+        // 해당 answerId를 가진 답변을 채택 처리
+        await Answer.update(
+            { isAccepted: false },
+            { where: { answer_pk: answerId } }
+        );
+
+        const updatedAnswer = await Answer.findOne(
+            {where : { answer_pk: answerId }}
+        )
+        console.log(updatedAnswer)
+
+        // 업데이트된 답변이 존재하는 경우
+        return res.status(200).json({ message: "답변이 채택되었습니다.", updatedAnswer });
+    } catch (error) {
+        console.error('Error accepting answer:', error);
+        return res.status(500).json({ message: "서버 오류로 인해 답변 채택에 실패했습니다." });
+    }
+});
+
+
 router.get('/:userId/profile-image-url', async (req, res) => {
     const userId = req.params.userId; // 요청에서 사용자 ID 가져오기
 
