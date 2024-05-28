@@ -101,9 +101,8 @@ router.post('/signup', async (req, res) => {
 
 // 로그인 API
 router.post('/login', async (req, res) => {
-  
   try {
-    const { user_id, password } = req.body
+    const { user_id, password } = req.body;
 
     // 사용자 확인
     const user = await User.findOne({
@@ -125,16 +124,12 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
     }
 
-    return res.status(200).json({ message: '로그인 성공', id : user.id });
-    // return res.status(200).json({ message: '로그인 성공' });
-
+    return res.status(200).json({ message: '로그인 성공', user_id: user.user_id });
   } catch (err) {
     console.error("Error"+err);
     return res.status(500).json({ error: '서버 오류' });
   }
-})
-
-
+});
 
 
 
