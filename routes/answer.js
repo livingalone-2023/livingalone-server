@@ -171,4 +171,27 @@ router.get('/:userId/profile-image-url', async (req, res) => {
     }
 });
 
+// 질문에 대한 모든 답변 조회 API
+router.get('/question/:question_pk', async (req, res) => {
+    const question_pk = req.params.question_pk; // 요청에서 질문의 primary key 가져오기
+
+    try {
+        // 질문에 대한 모든 답변을 조회
+        const questionAnswers = await Answer.findAll({
+            where: { question_pk: question_pk }
+        });
+
+        // 적은 답변이 없을 때 예외처리
+        if (questionAnswers.length === 0) {
+            return res.status(200).json({ message: "아직 답변이 없습니다.", data: questionAnswers });
+        } else {
+            // 질문에 대한 모든 답변 반환
+            return res.status(200).json({ message: "질문에 대한 모든 답변을 성공적으로 불러왔습니다.", data: questionAnswers });
+        }
+
+    } catch (error) {
+        console.error('Error fetching question answers:', error);
+        return res.status(500).json({ error: '질문에 대한 답변을 불러오는 중에 오류가 발생했습니다.' });
+    }
+});
 module.exports = router
