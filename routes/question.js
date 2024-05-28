@@ -221,7 +221,7 @@ router.get('/list/:user_pk', async (req, res) => {
 });
 
 
-//프로필 이미지 갖고오는 api 
+// 프로필 이미지 갖고오는 API
 router.get('/:userId/profile-image-url', async (req, res) => {
   const userId = req.params.userId; // 요청에서 사용자 ID 가져오기
 
@@ -243,6 +243,7 @@ router.get('/:userId/profile-image-url', async (req, res) => {
       return res.status(500).json({ error: '프로필 이미지 URL을 가져오는 중에 오류가 발생했습니다.' });
   }
 });
+
 
 // 조회수 가져오기 api
 router.get('/view/:question_pk', async (req, res) => {
