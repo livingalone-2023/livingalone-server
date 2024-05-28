@@ -245,7 +245,7 @@ router.get('/:userId/profile-image-url', async (req, res) => {
 });
 
 // 조회수 가져오기 api
-router.get('/:question_pk', async (req, res) => {
+router.get('/view/:question_pk', async (req, res) => {
   try {
     const question = await Question.findByPk(req.params.question_pk);
 
