@@ -1,5 +1,5 @@
 const express = require('express');
-const { User } = require('../models');// index는 파일 이름 생략 가능 
+const { User } = require('../models');// index는 파일 이름 생략 가능
 const { Op } = require("sequelize");
 const session = require('express-session');
 const crypto = require('crypto');
@@ -118,13 +118,13 @@ router.post('/login', async (req, res) => {
 
     // 입력된 비밀번호와 저장된 salt를 사용하여 해싱
     const hashedPassword = crypto.pbkdf2Sync(password, user.salt, 10000, 64, 'sha512').toString('base64');
-    
+
     // 해싱된 비밀번호 비교
     if (hashedPassword !== user.password) {
       return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
     }
 
-    return res.status(200).json({ message: '로그인 성공', user_id: user.user_id });
+    return res.status(200).json({ message: '로그인 성공', user_pk: user.user_pk });
   } catch (err) {
     console.error("Error"+err);
     return res.status(500).json({ error: '서버 오류' });
@@ -214,7 +214,7 @@ router.delete('/:user_id', async (req, res) => {
 
     return res.status(200).json({ "message" : "유저 정보 삭제에 성공했습니다." } )
   } catch (error) {
-    
+
     return res.status(500).json({ "message" : "유저 정보 삭제에 실패했습니다." } )
   }
 })
