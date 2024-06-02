@@ -43,7 +43,7 @@ router.get('/list', async (req, res) => {
 });
 
 //페이지네이션 api
-router.get('/list', async (req, res) => {
+router.get('/list/page', async (req, res) => {
   const tag = req.query.tag;
   const page = parseInt(req.query.page) || 1;
   const perPage = 5;
