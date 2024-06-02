@@ -164,7 +164,7 @@ router.get('/:user_id', async (req, res) => {
   try {
     const user = await User.findAll({
       attributes : ["user_id", "name", "email"],
-      where : { id : user_id }
+      where : { user_pk: user_id }
     })
 
     if(user) {
