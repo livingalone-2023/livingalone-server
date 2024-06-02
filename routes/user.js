@@ -209,7 +209,7 @@ router.delete('/:user_id', async (req, res) => {
   const id = req.params.user_id
   try {
     await User.destroy({
-      where : { id }
+      where : { user_pk: id }
     })
 
     return res.status(200).json({ "message" : "유저 정보 삭제에 성공했습니다." } )
