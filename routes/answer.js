@@ -146,7 +146,6 @@ router.get('/list/:user_pk', async (req, res) => {
         }
 
         return res.status(200).json({
-            message: "사용자의 댓글을 성공적으로 불러왔습니다.",
             data: rows,
             currentPage: page,
             totalPages: totalPages,
