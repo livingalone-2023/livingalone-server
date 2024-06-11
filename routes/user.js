@@ -7,6 +7,57 @@ const crypto = require('crypto');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 
+// 로그인 한 상태에서 비밀번호 변경 api
+router.put('/:user_id/password', async (req, res) => {
+  const userId = req.params.user_id;
+  const { email, newPassword, newPasswordConfirmation } = req.body;
+
+  try {
+    // 이메일이 입력되지 않은 경우
+    if (!email) {
+      return res.status(400).json({ message: '이메일을 입력해주세요.' });
+    }
+
+    // 사용자 찾기
+    const user = await User.findByPk(userId);
+
+    // 사용자가 존재하는 경우
+    if (user) {
+      // 이메일이 다를 경우
+      if (user.email !== email) {
+        return res.status(400).json({ message: '입력한 이메일과 해당 사용자의 이메일이 일치하지 않습니다.' });
+      }
+
+      // 새로운 비밀번호와 확인 비밀번호가 일치하는지 확인
+      if (newPassword !== newPasswordConfirmation) {
+        return res.status(400).json({ message: '새로운 비밀번호와 확인 비밀번호가 일치하지 않습니다. 다시 입력해주세요.' });
+      }
+
+      // 비밀번호가 변경 전과 동일한지 확인
+      const isSameAsBefore = await bcrypt.compare(newPassword, user.password);
+      if (isSameAsBefore) {
+        return res.status(400).json({ message: '새로운 비밀번호가 이전과 동일합니다. 새로운 비밀번호를 입력해주세요.' });
+      }
+
+      // 새로운 비밀번호 해싱
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // 사용자의 비밀번호 업데이트
+      await User.update({ password: hashedPassword }, { where: { user_pk: userId } });
+
+      return res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
+    } else {
+      // 사용자가 존재하지 않는 경우
+      return res.status(404).json({ message: '해당 사용자를 찾을 수 없습니다.' });
+    }
+  } catch (error) {
+      console.error('Error changing password:', error);
+      return res.status(500).json({ message: '서버 오류로 인해 비밀번호 변경에 실패했습니다.' });
+  }
+});
+
+
+
 // 비밀번호 변경 API
 router.put('/password', async (req, res) => {
   const { email, newPassword, newPasswordConfirmation } = req.body;
