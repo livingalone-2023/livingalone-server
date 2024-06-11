@@ -133,6 +133,13 @@ router.get('/list/:user_pk', async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
+        await Promise.all(rows.map(async (answer) => {
+            const question = await Question.findByPk(answer.question_pk);
+            answer.dataValues.questionTitle = question ? question.title : null;
+            answer.dataValues.questionViews = question ? question.views : null;
+            console.log(answer)
+        }));
+
         const totalPages = Math.ceil(count / limit); // 총 페이지 수 계산
 
         // 페이지 수가 총 페이지 수를 초과하는 경우 빈 배열 반환
@@ -141,7 +148,7 @@ router.get('/list/:user_pk', async (req, res) => {
                 message: "더 이상 댓글이 없습니다.",
                 data: [],
                 currentPage: page,
-                totalPages: totalPages,
+                totalPages: totalPages
             });
         }
 
@@ -149,6 +156,8 @@ router.get('/list/:user_pk', async (req, res) => {
             data: rows,
             currentPage: page,
             totalPages: totalPages,
+            totalAnswerCount : count,
+            limit
         });
 
     } catch (error) {
