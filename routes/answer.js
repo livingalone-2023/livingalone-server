@@ -135,8 +135,12 @@ router.get('/list/:user_pk', async (req, res) => {
 
         await Promise.all(rows.map(async (answer) => {
             const question = await Question.findByPk(answer.question_pk);
+            const {count} = await Answer.findAndCountAll({
+                where: { question_pk: answer.question_pk }
+            });
             answer.dataValues.questionTitle = question ? question.title : null;
             answer.dataValues.questionViews = question ? question.views : null;
+            answer.dataValues.thisQuestionAnswerCount = count;
             console.log(answer)
         }));
 
@@ -148,7 +152,9 @@ router.get('/list/:user_pk', async (req, res) => {
                 message: "더 이상 댓글이 없습니다.",
                 data: [],
                 currentPage: page,
-                totalPages: totalPages
+                totalPages: totalPages,
+                totalAnswerCount : count,
+                limit
             });
         }
 
