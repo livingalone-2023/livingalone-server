@@ -121,7 +121,7 @@ router.get('/', async (req, res) => {
 router.get('/list/:user_pk', async (req, res) => {
     const user_pk = req.params.user_pk; 
     const page = parseInt(req.query.page) 
-    const limit = 5;
+    const limit = 6;
     const offset = (page - 1) * limit; 
 
     try {
