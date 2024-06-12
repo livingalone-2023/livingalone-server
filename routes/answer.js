@@ -121,7 +121,7 @@ router.get('/', async (req, res) => {
 router.get('/list/:user_pk', async (req, res) => {
     const user_pk = req.params.user_pk; 
     const page = parseInt(req.query.page) 
-    const limit = 5;
+    const limit = 6;
     const offset = (page - 1) * limit; 
 
     try {
@@ -133,6 +133,17 @@ router.get('/list/:user_pk', async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
+        await Promise.all(rows.map(async (answer) => {
+            const question = await Question.findByPk(answer.question_pk);
+            const {count} = await Answer.findAndCountAll({
+                where: { question_pk: answer.question_pk }
+            });
+            answer.dataValues.questionTitle = question ? question.title : null;
+            answer.dataValues.questionViews = question ? question.views : null;
+            answer.dataValues.thisQuestionAnswerCount = count;
+            console.log(answer)
+        }));
+
         const totalPages = Math.ceil(count / limit); // 총 페이지 수 계산
 
         // 페이지 수가 총 페이지 수를 초과하는 경우 빈 배열 반환
@@ -142,6 +153,8 @@ router.get('/list/:user_pk', async (req, res) => {
                 data: [],
                 currentPage: page,
                 totalPages: totalPages,
+                totalAnswerCount : count,
+                limit
             });
         }
 
@@ -149,6 +162,8 @@ router.get('/list/:user_pk', async (req, res) => {
             data: rows,
             currentPage: page,
             totalPages: totalPages,
+            totalAnswerCount : count,
+            limit
         });
 
     } catch (error) {
@@ -156,32 +171,6 @@ router.get('/list/:user_pk', async (req, res) => {
         return res.status(500).json({ error: '사용자의 댓글을 불러오는 중에 오류가 발생했습니다.' });
     }
 });
-
-
-// // 내가 쓴 답변 조회 API
-// router.get('/list/:user_pk', async (req, res) => {
-//     const user_pk = req.params.user_pk; // 사용자의 user_pk를 가져옴
-
-//     try {
-//         // 사용자가 작성한 모든 댓글을 조회
-//         const userAnswers = await Answer.findAll({
-//             where: { user_pk: user_pk }
-//         });
-
-//         // 적은 댓글이 없을 때 예외처리
-//         if (userAnswers.length === 0) {
-//             return res.status(200).json({ message: "아직 적은 댓글이 없습니다.", data: userAnswers });
-//         } else {
-//             // 사용자가 작성한 모든 질문과 그에 대한 정보를 반환
-//             return res.status(200).json({ message: "사용자의 댓글을 모두 불러왔습니다.", data: userAnswers });
-//         }
-
-//     } catch (error) {
-//         console.error('Error fetching user questions:', error);
-//         return res.status(500).json({ error: '사용자의 댓글을 불러오는 중에 오류가 발생했습니다.' });
-//     }
-// });
-
 
 
 // 답변 채택 API

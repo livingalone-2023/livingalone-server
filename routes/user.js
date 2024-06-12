@@ -223,20 +223,42 @@ router.get('/:user_id', async (req, res) => {
 
 
 // 유저 정보 수정
-router.patch('/:user_id', async (req, res) => {
-  const id = req.params.user_id
+router.patch('/:user_pk', async (req, res) => {
+  const user_pk = req.params.user_pk
   const { image, name } = req.body;
   try {
     const user = await User.update({
       image, // 이미지 정보를 업데이트할 수 있도록 수정
       name
     }, {
-      where : { id }
+      where : { user_pk }
     })
 
     return res.status(200).json({ "message" : "유저 정보 수정에 성공했습니다." } )
   } catch (error) {
     return res.status(500).json({ "message" : "유저 정보 수정에 실패했습니다." } )
+  }
+})
+
+
+
+
+
+
+// 유저 이메일 수정
+router.patch('/email/:user_pk', async (req, res) => {
+  const user_pk = req.params.user_pk
+  const { new_email } = req.body;
+  try {
+    const user = await User.update({
+      email : new_email
+    }, {
+      where : { user_pk }
+    })
+
+    return res.status(200).json({ "message" : "유저 이메일 수정에 성공했습니다.", "새로운 이메일" : new_email } )
+  } catch (error) {
+    return res.status(500).json({ "message" : "유저 이메일 수정에 실패했습니다." } )
   }
 })
 
