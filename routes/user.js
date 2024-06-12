@@ -7,37 +7,40 @@ const crypto = require('crypto');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 
-// 로그인 한 상태에서 비밀번호 변경 api
 router.put('/:user_id/password', async (req, res) => {
   const userId = req.params.user_id;
-  const { newPassword, newPasswordConfirmation } = req.body;
+  const { currentPassword, newPassword, newPasswordConfirmation } = req.body;
 
   try {
     // 사용자 찾기
     const user = await User.findByPk(userId);
 
-    // 사용자가 존재하는 경우
     if (user) {
+      // 현재 비밀번호가 맞는지 확인
+      const hashedCurrentPassword = crypto.pbkdf2Sync(currentPassword, user.salt, 10000, 64, 'sha512').toString('base64');
+      if (hashedCurrentPassword !== user.password) {
+        return res.status(400).json({ message: '현재 비밀번호가 일치하지 않습니다. 다시 입력해주세요.' });
+      }
+
       // 새로운 비밀번호와 확인 비밀번호가 일치하는지 확인
       if (newPassword !== newPasswordConfirmation) {
         return res.status(400).json({ message: '새로운 비밀번호와 확인 비밀번호가 일치하지 않습니다. 다시 입력해주세요.' });
       }
 
       // 비밀번호가 변경 전과 동일한지 확인
-      const isSameAsBefore = await bcrypt.compare(newPassword, user.password);
-      if (isSameAsBefore) {
+      const hashedNewPassword = crypto.pbkdf2Sync(newPassword, user.salt, 10000, 64, 'sha512').toString('base64');
+      if (hashedNewPassword === user.password) {
         return res.status(400).json({ message: '새로운 비밀번호가 이전과 동일합니다. 새로운 비밀번호를 입력해주세요.' });
       }
 
       // 새로운 비밀번호 해싱
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const newHashedPassword = crypto.pbkdf2Sync(newPassword, user.salt, 10000, 64, 'sha512').toString('base64');
 
       // 사용자의 비밀번호 업데이트
-      await User.update({ password: hashedPassword }, { where: { user_pk: userId } });
+      await User.update({ password: newHashedPassword }, { where: { user_pk: userId } });
 
       return res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
     } else {
-      // 사용자가 존재하지 않는 경우
       return res.status(404).json({ message: '해당 사용자를 찾을 수 없습니다.' });
     }
   } catch (error) {
@@ -45,6 +48,33 @@ router.put('/:user_id/password', async (req, res) => {
     return res.status(500).json({ message: '서버 오류로 인해 비밀번호 변경에 실패했습니다.' });
   }
 });
+
+// 비밀번호 변경 API
+router.put('/password', async (req, res) => {
+  const { email, newPassword, newPasswordConfirmation } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+
+    if (user) {
+      if (newPassword !== newPasswordConfirmation) {
+        return res.status(400).json({ message: '새로운 비밀번호와 확인 비밀번호가 일치하지 않습니다.' });
+      }
+
+      const newHashedPassword = crypto.pbkdf2Sync(newPassword, user.salt, 10000, 64, 'sha512').toString('base64');
+      await User.update({ password: newHashedPassword }, { where: { email } });
+
+      return res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
+    } else {
+      return res.status(404).json({ message: '해당 이메일을 가진 사용자를 찾을 수 없습니다.' });
+    }
+  } catch (error) {
+    console.error('Error changing password:', error);
+    return res.status(500).json({ message: '서버 오류로 인해 비밀번호 변경에 실패했습니다.' });
+  }
+});
+
+
 
 
 // 비밀번호 변경 API
@@ -110,25 +140,19 @@ router.post('/password/compare', async (req, res) => {
 router.post('/signup', async (req, res) => {
   try {
     const { user_id, name, password, email, image } = req.body;
-
-    // 비밀번호 해싱에 사용할 salt 생성
     const salt = crypto.randomBytes(16).toString('hex');
+    const hashedPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('base64');
 
-    // 사용자 비밀번호와 salt를 합쳐 해싱
-    const hashedPassword = await crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('base64');
-
-    // 회원가입
     const user = await User.create({
       user_id,
       name,
       password: hashedPassword,
       email,
       salt,
-      image // 이미지 URL 추가
-    })
+      image
+    });
 
-    return res.status(200).json({ message: '사용자 정보가 성공적으로 저장되었습니다.' , user_id: user.user_id });
-
+    return res.status(200).json({ message: '사용자 정보가 성공적으로 저장되었습니다.', user_id: user.user_id });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: '사용자 정보가 성공적으로 저장되지 않았습니다.' });
@@ -143,33 +167,25 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { user_id, password } = req.body;
+    const user = await User.findOne({ where: { user_id } });
 
-    // 사용자 확인
-    const user = await User.findOne({
-      where: {
-        user_id,
-      },
-    });
-
-    // 사용자가 존재하지 않으면 오류 응답
     if (!user) {
       return res.status(400).json({ error: '존재하지 않는 사용자입니다.' });
     }
 
-    // 입력된 비밀번호와 저장된 salt를 사용하여 해싱
     const hashedPassword = crypto.pbkdf2Sync(password, user.salt, 10000, 64, 'sha512').toString('base64');
-
-    // 해싱된 비밀번호 비교
     if (hashedPassword !== user.password) {
       return res.status(401).json({ error: '비밀번호가 일치하지 않습니다.' });
     }
 
     return res.status(200).json({ message: '로그인 성공', user_pk: user.user_pk });
   } catch (err) {
-    console.error("Error"+err);
+    console.error("Error" + err);
     return res.status(500).json({ error: '서버 오류' });
   }
 });
+
+
 
 
 
