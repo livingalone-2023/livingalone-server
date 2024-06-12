@@ -198,69 +198,51 @@ router.delete('/:question_pk', async (req, res) => {
 
 router.get('/list/:user_pk', async (req, res) => {
   const userId = req.params.user_pk;
-  const page = parseInt(req.query.page) || 1;
-  const limit = 4; // 한 페이지당 4개의 질문만 보이게 설정
+  let page = parseInt(req.query.page) || 1;
+  const limit = 4;
   const offset = (page - 1) * limit;
 
   try {
-      // 사용자가 작성한 모든 질문을 조회 (페이지네이션 적용)
-      const { count, rows } = await Question.findAndCountAll({
-          where: { user_pk: userId },
-          limit: limit,
-          offset: offset,
-          order: [['createdAt', 'DESC']],
-          include: [
-              {
-                  model: Answer, // Answer 모델을 include
-                  attributes: [],
-              }
-          ]
-      });
+    // 사용자가 작성한 모든 질문을 조회 (페이지네이션 적용)
+    const { count, rows } = await Question.findAndCountAll({
+      where: { user_pk: userId },
+      limit: limit,
+      offset: offset,
+      order: [['createdAt', 'DESC']],
+    });
 
-      const totalPages = Math.ceil(count / limit);
+    const totalPages = Math.ceil(count / limit);
 
-      // 페이지 수가 총 페이지 수를 초과하는 경우 빈 배열 반환
-      if (page > totalPages) {
-          return res.status(200).json({
-              message: "더 이상 질문이 없습니다.",
-              data: [],
-              currentPage: page,
-              totalPages: totalPages,
-              totalQuestions: count,
-          });
-      }
+    // 각 질문에 대한 답변 수를 계산하여 추가
+    const questionsWithAnswerCount = await Promise.all(rows.map(async (question) => {
+      const commentCount = await Answer.count({ where: { question_pk: question.question_pk } }); // 각 질문에 대한 답변 수 계산
+      return {
+        question_pk: question.question_pk,
+        title: question.title,
+        content: question.content,
+        views: question.views,
+        tag: question.tag,
+        user_pk: question.user_pk,
+        createdAt: question.createdAt,
+        updatedAt: question.updatedAt,
+        comments: commentCount // 답변 수 추가
+      };
+    }));
 
-      // 각 질문에 대한 답변 수를 계산하여 추가
-      const questionsWithAnswerCount = rows.map(async (question) => {
-          const commentCount = await Answer.count({ where: { question_pk: question.question_pk } }); // 각 질문에 대한 답변 수 계산
-          return {
-              question_pk: question.question_pk,
-              title: question.title,
-              content: question.content,
-              views: question.views,
-              tag: question.tag,
-              user_pk: question.user_pk,
-              createdAt: question.createdAt,
-              updatedAt: question.updatedAt,
-              comments: commentCount // 답변 수 추가
-          };
-      });
-
-      // 비동기 처리된 질문과 답변 수를 반환
-      const resolvedQuestions = await Promise.all(questionsWithAnswerCount);
-
-      return res.status(200).json({
-          data: resolvedQuestions,
-          currentPage: page,
-          totalPages: totalPages,
-          totalQuestions: count,
-      });
+    return res.status(200).json({
+      message: "질문 목록 불러오기 성공",
+      data: questionsWithAnswerCount,
+      currentPage: page,
+      totalPages: totalPages,
+      totalQuestions: count,
+    });
 
   } catch (error) {
-      console.error('Error fetching user questions:', error);
-      return res.status(500).json({ error: '사용자의 질문을 불러오는 중에 오류가 발생했습니다.' });
+    console.error('Error fetching user questions:', error);
+    return res.status(500).json({ error: '사용자 질문을 가져오는 중에 오류가 발생했습니다.' });
   }
 });
+
 
 
 // // 내가 쓴 질문 조회 api
