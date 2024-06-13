@@ -239,80 +239,81 @@ router.get('/:user_id', async (req, res) => {
 
 
 
-// Multer 설정
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads/')); // '../uploads/'로 변경, 'uploads'가 'routes' 디렉토리의 부모 디렉토리에 있다고 가정합니다.
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-// uploads 폴더 경로 설정
 const uploadsDir = path.join(__dirname, '../uploads');
 
-// uploads 폴더가 없으면 자동 생성하는 미들웨어
+// 모든 라우트에 대해 'uploads' 폴더가 존재하는지 확인하는 미들웨어
 const ensureUploadsFolder = (req, res, next) => {
   fs.access(uploadsDir, (err) => {
     if (err && err.code === 'ENOENT') {
-      // uploads 폴더가 없는 경우 생성
+      // 'uploads' 폴더가 없는 경우 생성
       fs.mkdir(uploadsDir, { recursive: true }, (err) => {
         if (err) {
-          console.error('Failed to create uploads folder:', err);
+          console.error('uploads 폴더 생성 실패:', err);
           next(err);
         } else {
-          console.log('Uploads folder created');
+          console.log('uploads 폴더 생성됨');
           next();
         }
       });
     } else if (err) {
-      console.error('Error accessing uploads folder:', err);
+      console.error('uploads 폴더 접근 오류:', err);
       next(err);
     } else {
-      // uploads 폴더가 이미 존재하는 경우
+      // 'uploads' 폴더가 이미 존재하는 경우
       next();
     }
   });
 };
 
-// 미들웨어를 모든 라우트에 적용
-router.use(ensureUploadsFolder);
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir); 
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname); 
+    const filename = file.fieldname + '-' + uniqueSuffix + ext; 
+    req.imagePath = '/uploads/' + filename; 
+    cb(null, filename); 
+  }
+});
+
 const upload = multer({ storage: storage });
 
-// 유저 정보 수정
+// 회원정보 수정 API
 router.patch('/:user_pk', upload.single('image'), async (req, res) => {
   const user_pk = req.params.user_pk;
   const { name } = req.body;
-  const image = req.file ? req.file.path : null; // 업로드된 파일 경로
+  const imagePath = req.imagePath; // 이미지 상대 경로
 
   try {
-    // 사용자가 존재하는지 확인
+    // Primary key로 사용자 조회
     const user = await User.findByPk(user_pk);
     if (!user) {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
 
-    // 이미지가 업로드되었지만 파일 경로가 없는 경우
+    // 파일이 올바르게 업로드되지 않은 경우
     if (!req.file) {
       return res.status(400).json({ message: '이미지가 제대로 업로드되지 않았습니다.' });
     }
 
     // 사용자 정보 업데이트
     // 이전 이미지 경로와 새 이미지 경로가 동일한지 확인
-    if (image && image === user.image) {
+    if (imagePath && imagePath === user.image) {
       return res.status(400).json({ message: '새로운 이미지가 기존 이미지와 동일합니다.' });
     }
 
     // 이전 이름과 새 이름이 동일한지 확인
     if (name === user.name) {
-      return res.status(400).json({ message: '새로운 이름이 이전 이름과 동일합니다.' });
+      return res.status(400).json({ message: '새로운 이름이 기존 이름과 동일합니다.' });
     }
 
     // 사용자 정보 업데이트
     const updatedUser = await user.update({
       name,
-      image // 업로드된 이미지가 있으면 이미지 필드를 업데이트
+      image: imagePath
     });
 
     return res.status(200).json({ message: '사용자 정보가 성공적으로 업데이트되었습니다.' });
@@ -321,6 +322,8 @@ router.patch('/:user_pk', upload.single('image'), async (req, res) => {
     return res.status(500).json({ message: '사용자 정보 업데이트에 실패했습니다.' });
   }
 });
+
+
 
 
 
@@ -362,4 +365,6 @@ router.delete('/:user_id', async (req, res) => {
   }
 })
 
+
+router.use(ensureUploadsFolder);
 module.exports = router
