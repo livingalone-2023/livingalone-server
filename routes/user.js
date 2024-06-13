@@ -285,7 +285,7 @@ const upload = multer({ storage: storage });
 router.patch('/:user_pk', upload.single('image'), async (req, res) => {
   const user_pk = req.params.user_pk;
   const { name } = req.body;
-  const imagePath = req.imagePath; // 이미지 상대 경로
+  const imagePath = req.file ? req.imagePath : null; // 이미지 상대 경로
 
   try {
     // Primary key로 사용자 조회
@@ -306,6 +306,7 @@ router.patch('/:user_pk', upload.single('image'), async (req, res) => {
     return res.status(500).json({ message: '사용자 정보 업데이트에 실패했습니다.' });
   }
 });
+
 
 
 
