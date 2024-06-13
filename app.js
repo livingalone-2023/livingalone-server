@@ -50,3 +50,4 @@ app.use(session({
 app.use('/users', userRouter)
 app.use('/questions', questionRouter)
 app.use('/answers', answerRouter)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
