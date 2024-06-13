@@ -294,11 +294,6 @@ router.patch('/:user_pk', upload.single('image'), async (req, res) => {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
 
-    // 파일이 올바르게 업로드되지 않은 경우
-    if (!req.file) {
-      return res.status(400).json({ message: '이미지가 제대로 업로드되지 않았습니다.' });
-    }
-
     // 사용자 정보 업데이트
     const updatedUser = await user.update({
       name,
