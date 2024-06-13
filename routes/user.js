@@ -300,17 +300,6 @@ router.patch('/:user_pk', upload.single('image'), async (req, res) => {
     }
 
     // 사용자 정보 업데이트
-    // 이전 이미지 경로와 새 이미지 경로가 동일한지 확인
-    if (imagePath && imagePath === user.image) {
-      return res.status(400).json({ message: '새로운 이미지가 기존 이미지와 동일합니다.' });
-    }
-
-    // 이전 이름과 새 이름이 동일한지 확인
-    if (name === user.name) {
-      return res.status(400).json({ message: '새로운 이름이 기존 이름과 동일합니다.' });
-    }
-
-    // 사용자 정보 업데이트
     const updatedUser = await user.update({
       name,
       image: imagePath
