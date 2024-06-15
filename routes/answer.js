@@ -1,10 +1,10 @@
 const express = require('express');
-//const { Answer } = require('../models');// index는 파일 이름 생략 가능 
+//const { Answer } = require('../models');// index는 파일 이름 생략 가능
 const { Op } = require("sequelize");
 const session = require('express-session');
 const crypto = require('crypto');
 //const User = require('../models/User');
-const { User, Answer, Question } = require('../models'); 
+const { User, Answer, Question } = require('../models');
 const router = express.Router();
 const fs = require('fs');
 
@@ -63,7 +63,7 @@ router.patch('/:answer_id', async (req, res) => {
             return res.status(404).json({ "message": "없는 답변입니다." });
         }
 
-        
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({ "message": "서버 오류가 발생하였습니다." });
@@ -73,7 +73,7 @@ router.patch('/:answer_id', async (req, res) => {
 
 // 답변 삭제 api
 router.delete('/:answer_pk', async (req, res) => {
-    const answer_pk = req.params.answer_pk; 
+    const answer_pk = req.params.answer_pk;
 
     try {
         // 해당 answer_pk를 가진 답변 삭제
@@ -104,7 +104,7 @@ router.get('/', async (req, res) => {
         const allAnswers = await Answer.findAll({
             include: {
                 model: User, // User 모델
-                attributes: ['name'], // 사용자의 이름만 포함
+                attributes: ['name', 'image'], // 사용자의 이름만 포함
                 required: true // 내부 조인으로 설정하여 연결된 사용자가 있는 답변만 검색
             }
         });
@@ -119,10 +119,10 @@ router.get('/', async (req, res) => {
 
 // 내가 쓴 답변 조회 API (페이지네이션 적용)
 router.get('/list/:user_pk', async (req, res) => {
-    const user_pk = req.params.user_pk; 
-    const page = parseInt(req.query.page) 
+    const user_pk = req.params.user_pk;
+    const page = parseInt(req.query.page)
     const limit = 6;
-    const offset = (page - 1) * limit; 
+    const offset = (page - 1) * limit;
 
     try {
         // 사용자가 작성한 모든 답변 조회 (페이지네이션 적용)
@@ -254,7 +254,7 @@ router.get('/question/:question_pk', async (req, res) => {
             where: { question_pk: question_pk },
             include: {
                 model: User, // User 모델
-                attributes: ['name'], // 사용자의 이름만 포함
+                attributes: ['name', 'image', 'user_pk'], // 사용자의 이름만 포함
                 required: true // 내부 조인으로 설정하여 연결된 사용자가 있는 답변만 검색
             }
         });
